@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Todo {
@@ -14,6 +16,8 @@ public class Todo {
 	@GeneratedValue(strategy = GenerationType.IDENTITY) //主キーのオートインクリメント
 	private Long id;
 	
+	@NotBlank(message = "タイトルは必須です")
+	@Size(max = 100, message = "タイトルは100文字以内で入力してください")
 	private String title;
 	
 	private boolean done;

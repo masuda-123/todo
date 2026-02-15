@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.todo.entity.Todo;
 import com.example.todo.service.TodoService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/todos")
 public class TodoController {
@@ -32,7 +34,7 @@ public class TodoController {
     
     // Todo保存
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo) {
+    public Todo createTodo(@Valid @RequestBody Todo todo) { // @Valid = Todoオブジェクトのバリデーションを実行
         return todoService.save(todo);
     }
     
@@ -46,7 +48,7 @@ public class TodoController {
     @PutMapping("/{id}")
     public Todo updateTodo(
             @PathVariable Long id,
-            @RequestBody Todo todo) { // @RequestBody リクエストボディ（JSON）から値を受け取る
+            @Valid @RequestBody Todo todo) { // @RequestBody  = リクエストボディ（JSON）から値を受け取る
 
         return todoService.update(id, todo);
     }
