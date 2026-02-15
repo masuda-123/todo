@@ -46,6 +46,18 @@ public class TodoService {
         // 保存（UPDATE実行）
         return todoRepository.save(todo);
     }
+    
+    // 削除
+    public void deleteTodo(Long id) {
+
+        // 存在チェック（なければエラー）
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Todo not found"));
+
+        // 削除
+        todoRepository.delete(todo);
+    }
+
 
 }
 
