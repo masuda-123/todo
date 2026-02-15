@@ -31,5 +31,21 @@ public class TodoService {
         return todoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Todo not found"));
     }
+    
+    // 更新
+    public Todo update(Long id, Todo updatedTodo) {
+
+        // DBから既存データ取得（なければエラー）
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Todo not found"));
+
+        // 値を更新
+        todo.setTitle(updatedTodo.getTitle());
+        todo.setDone(updatedTodo.isDone());
+
+        // 保存（UPDATE実行）
+        return todoRepository.save(todo);
+    }
+
 }
 

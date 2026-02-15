@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,5 +39,14 @@ public class TodoController {
     @GetMapping("/{id}")
     public Todo getTodo(@PathVariable Long id) { // @PathVariable = URLから動的な値を受け取る
         return todoService.findById(id);
+    }
+    
+    // Todo更新
+    @PutMapping("/{id}")
+    public Todo updateTodo(
+            @PathVariable Long id,
+            @RequestBody Todo todo) { // @RequestBody リクエストボディ（JSON）から値を受け取る
+
+        return todoService.update(id, todo);
     }
 }
