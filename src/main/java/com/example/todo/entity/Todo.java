@@ -10,12 +10,16 @@ import jakarta.persistence.Id;
 @Entity
 public class Todo {
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id //主キー
+	@GeneratedValue(strategy = GenerationType.IDENTITY) //主キーのオートインクリメント
 	private Long id;
+	
 	private String title;
+	
 	private boolean done;
+	
 	private LocalDateTime createdAt;
+	
 	
 	public Todo() {}
 	
