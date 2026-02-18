@@ -48,6 +48,23 @@ function fetchTodos() {
     			li.appendChild(delBtn);
     			//todoListの子要素に<li>を入れる
     			todoList.appendChild(li);
+    			
+    			// <li>をクリックした時の処理
+    			li.onclick = () => {
+					// 入力ダイアログを表示し、入力された値をnewTitleに格納
+  					const newTitle = prompt("新しいタイトルを入力", todo.title);
+  					// 何も入力されていない場合は、処理をここで終わらせる
+  					if (!newTitle) return;
+  					// PUTリクエストを送ってタイトルを更新
+					fetch(`/todos/${todo.id}`, {
+    					method: "PUT",
+    					headers: { "Content-Type": "application/json" },
+    					//JSON.stringifyでjavasScriptオブジェクトを文字列化する
+    					body: JSON.stringify({ title: newTitle })
+  					})
+  					// 更新できたら一覧を取得
+  					.then(() => fetchTodos());
+				};
 			});
         });
 }
@@ -85,7 +102,7 @@ addBtn.onclick = () => {
 function deleteTodo(id) {
 	// 削除APIを呼ぶ
     fetch(`/todos/${id}`, { method: 'DELETE' })
-    	// 削除後に一覧を更新
+    	// 削除後に一覧を取得
         .then(() => fetchTodos());
 }
 
@@ -93,7 +110,7 @@ function deleteTodo(id) {
 function toggleTodo(id) {
 	// 更新APIを呼ぶ
     fetch(`/todos/${id}/toggle`, { method: 'PATCH' })
-    	// 更新後に一覧を更新
+    	// 更新後に一覧を取得
     	.then(() => fetchTodos());
 }
 
