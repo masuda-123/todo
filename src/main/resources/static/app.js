@@ -15,23 +15,40 @@ function fetchTodos() {
             todoList.innerHTML = '';
             // Todoを一つずつ<li>に表示
             data.forEach(todo => {
-				// createElementでHTMLの要素<li>を作る
-                const li = document.createElement('li');
-                // <li>内のテキストにTodoタイトルを設定
-                li.textContent = todo.title;
-                
-                // 削除ボタン
-                // createElementでHTMLの要素<button>を作る
-                const delBtn = document.createElement('button');
-                // ボタン内のテキストを設定
-                delBtn.textContent = '削除';
-                // ボタンをクリックした時の処理を登録
-                delBtn.onclick = () => deleteTodo(todo.id);
-                // <li>内にボタンを追加
-                li.appendChild(delBtn);
-                // <ul>内に<li>を追加
-                todoList.appendChild(li);
-            });
+				// createElementで<li>要素を作成
+    			const li = document.createElement('li');
+
+    			// 完了なら表示を変える
+    			if (todo.done) {
+					// <li>要素に取り消し線を引く
+        			li.style.textDecoration = "line-through";
+    			}
+    			
+    			//<li>内のテキストにタイトルを表示
+    			li.textContent = todo.title;
+
+    			// 完了ボタン
+    			// createElementで<button>要素を作成
+    			const toggleBtn = document.createElement('button');
+    			// <button>内のテキストを設定
+    			toggleBtn.textContent = '完了切替';
+    			// ボタンをクリックしたら完了切替処理が行われるように設定
+    			toggleBtn.onclick = () => toggleTodo(todo.id);
+			
+    			// 削除ボタン
+    			// createElementで<button>要素を作成
+    			const delBtn = document.createElement('button');
+    			// <button>内のテキストを設定
+    			delBtn.textContent = '削除';
+    			// ボタンをクリックしたら削除処理が行われるように設定
+    			delBtn.onclick = () => deleteTodo(todo.id);
+    			// <li>の子要素に完了切替ボタンを入れる
+    			li.appendChild(toggleBtn);
+    			// <li>の子要素に削除ボタンを入れる
+    			li.appendChild(delBtn);
+    			//todoListの子要素に<li>を入れる
+    			todoList.appendChild(li);
+			});
         });
 }
 
@@ -70,6 +87,14 @@ function deleteTodo(id) {
     fetch(`/todos/${id}`, { method: 'DELETE' })
     	// 削除後に一覧を更新
         .then(() => fetchTodos());
+}
+
+// 完了切替ボタンが押された時の処理
+function toggleTodo(id) {
+	// 更新APIを呼ぶ
+    fetch(`/todos/${id}/toggle`, { method: 'PATCH' })
+    	// 更新後に一覧を更新
+    	.then(() => fetchTodos());
 }
 
 // 初期表示

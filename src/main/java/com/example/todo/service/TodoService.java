@@ -59,6 +59,13 @@ public class TodoService {
         // 削除
         todoRepository.delete(todo);
     }
+    
+    public Todo toggleTodo(Long id) {
+        Todo todo = todoRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found"));
+        todo.setDone(!todo.isDone()); // true ⇄ false 反転
+        return todoRepository.save(todo);
+    }
 
 
 }
