@@ -24,7 +24,10 @@ public class TodoService {
     }
 
     // 保存
-    public Todo save(Todo todo) {
+    public Todo save(String title) {
+        Todo todo = new Todo();
+        todo.setTitle(title);
+        todo.setDone(false);
         return todoRepository.save(todo);
     }
     

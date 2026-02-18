@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.todo.dto.TodoRequest;
 import com.example.todo.entity.Todo;
 import com.example.todo.service.TodoService;
 
@@ -35,8 +36,8 @@ public class TodoController {
     
     // Todo保存
     @PostMapping
-    public Todo createTodo(@Valid @RequestBody Todo todo) { // @Valid = Todoオブジェクトのバリデーションを実行
-        return todoService.save(todo);
+    public Todo createTodo(@Valid @RequestBody TodoRequest request) { // @Valid = Todoオブジェクトのバリデーションを実行
+        return todoService.save(request.getTitle());
     }
     
     // Todo一件取得
