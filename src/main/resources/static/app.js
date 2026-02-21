@@ -18,17 +18,12 @@ function fetchTodos() {
 				// createElementで<li>要素を作成
     			const li = document.createElement('li');
     			li.id = `todo-${todo.id}`;
-
     			// 完了なら表示を変える
-    			if (todo.done) {
-					// <li>要素に取り消し線を引く
-        			li.style.textDecoration = "line-through";
-    			}
-    			
+    			li.style.textDecoration = todo.done ? "line-through" : "none";
     			//<li>内のテキストにタイトルを表示
     			li.textContent = todo.title;
 
-    			// 完了ボタン
+    			// 完了切り替えボタン
     			// createElementで<button>要素を作成
     			const toggleBtn = document.createElement('button');
     			// <button>内のテキストを設定
@@ -56,11 +51,13 @@ function fetchTodos() {
     			//todoListの子要素に<li>を入れる
     			todoList.appendChild(li);
     			
-    			// <li>をクリックした時の処理
-    			li.onclick = () => {
-					// 入力ダイアログを表示し、入力された値をnewTitleに格納
-  					const newTitle = prompt("新しいタイトルを入力", todo.title)?.trim();　//promptがある場合trimを実行
-  					
+    			// --- 更新（liクリックでタイトル編集） ---
+                li.addEventListener('click', () => {
+                    const input = prompt("新しいタイトルを入力", todo.title)
+                    // キャンセルなら処理を中断
+                    if (input === null) return;
+                    // trim()で前後の空白（スペース、タブ、改行）を削除
+                    const newTitle = input.trim();
   					if (!newTitle) {
 				        alert('タイトルを入力してください');
 				        return;
@@ -76,17 +73,28 @@ function fetchTodos() {
     					//JSON.stringifyでjavasScriptオブジェクトを文字列化する
     					body: JSON.stringify({ title: newTitle })
   					})
-  					// 更新できたら一覧を取得
-  					.then(() => fetchTodos());
-				};
+  					.then(res => {
+                        if (!res.ok) return res.json().then(err => { throw err; });
+                        return res.json();
+                    })
+                    .then(updated => {
+                        li.textContent = updated.title;
+                        li.style.textDecoration = updated.done ? "line-through" : "none";
+                        li.appendChild(toggleBtn);
+                        li.appendChild(delBtn);
+                    })
+                    .catch(err => alert(JSON.stringify(err)));
+				});
 			});
-        });
+        })
+        // エラーがある場合、アラートで表示
+        .catch(err => alert(JSON.stringify(err)));
 }
 
 // 追加ボタンがクリックされた時の処理
 addBtn.addEventListener('click', () => {
 	// 入力欄に書かれた文字列を取得
-    const title = todoTitle.value.trim(); //trim()で前後の空白（スペース、タブ、改行）を削除
+    const title = todoTitle.value.trim();
     if (!title) {
         alert('タイトルを入力してください');
         return;
@@ -103,7 +111,7 @@ addBtn.addEventListener('click', () => {
     })
     // HTTPステータスが200 ~ 299ならtrue
     .then(res => {　// resは返ってきたレスポンスのこと
-		// バリデーションエラーなどで400ならthrow errでcatchに飛ばす
+		// // 400/404ならthrow errでcatchに飛ばす
         if (!res.ok) {
             return res.json().then(err => { throw err; });
         }
@@ -116,7 +124,7 @@ addBtn.addEventListener('click', () => {
         // 追加後に一覧を更新
         fetchTodos();
     })
-    // エラーの場合、アラートで表示
+    // エラーがある場合、アラートで表示
     .catch(err => alert(JSON.stringify(err))); //errをJSON.stringifyで文字列化する
 });
 
@@ -124,12 +132,16 @@ addBtn.addEventListener('click', () => {
 function deleteTodo(id) {
 	// 削除APIを呼ぶ
     fetch(`/todos/${id}`, { method: 'DELETE' })        
-    .then(() => {
-		// li要素にidを付与
-		const li = document.getElementById(`todo-${id}`);
-		// li を削除
-		if (li) li.remove();
-    });
+    .then(res => {
+		// 400/404ならthrow errでcatchに飛ばす
+		if (!res.ok) return res.json().then(err => { throw err; });
+			// li要素にidを付与
+            const li = document.getElementById(`todo-${id}`);
+            // li要素を削除
+            if (li) li.remove();
+        })
+        // エラーがある場合、アラートで表示
+        .catch(err => alert(JSON.stringify(err)));
 }
 
 // 完了切替ボタンが押された時の処理
@@ -138,14 +150,14 @@ function toggleTodo(id) {
     fetch(`/todos/${id}/toggle`, { method: 'PATCH' })
     // APIから返ってきたJSON文字列をJavascriptオブジェクトに変換
     .then(res => res.json())
-    .then(updatedTodo => { 
+    .then(updated => {
 		// li要素にidを付与
 		const li = document.getElementById(`todo-${id}`);
 		// doneがtrueの場合は、取り消し線を引く
-		if (li) {
-			li.style.textDecoration = updatedTodo.done ? "line-through" : "none";
-		}
-	});
+		if (li) li.style.textDecoration = updated.done ? "line-through" : "none";
+	})
+	// エラーがある場合、アラートで表示
+    .catch(err => alert(JSON.stringify(err)));
 }
 
 // 初期表示
