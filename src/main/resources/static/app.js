@@ -17,6 +17,7 @@ function fetchTodos() {
             data.forEach(todo => {
 				// createElementで<li>要素を作成
     			const li = document.createElement('li');
+    			li.id = `todo-${todo.id}`;
 
     			// 完了なら表示を変える
     			if (todo.done) {
@@ -33,7 +34,10 @@ function fetchTodos() {
     			// <button>内のテキストを設定
     			toggleBtn.textContent = '完了切替';
     			// ボタンをクリックしたら完了切替処理が行われるように設定
-    			toggleBtn.onclick = () => toggleTodo(todo.id);
+				toggleBtn.addEventListener('click', (e) => {
+    				e.stopPropagation(); // li の onclick を止める
+    				toggleTodo(todo.id);
+				});
 			
     			// 削除ボタン
     			// createElementで<button>要素を作成
@@ -41,7 +45,10 @@ function fetchTodos() {
     			// <button>内のテキストを設定
     			delBtn.textContent = '削除';
     			// ボタンをクリックしたら削除処理が行われるように設定
-    			delBtn.onclick = () => deleteTodo(todo.id);
+    			delBtn.addEventListener('click', (e) => {
+   					e.stopPropagation();
+    				deleteTodo(todo.id);
+				});
     			// <li>の子要素に完了切替ボタンを入れる
     			li.appendChild(toggleBtn);
     			// <li>の子要素に削除ボタンを入れる
@@ -52,9 +59,16 @@ function fetchTodos() {
     			// <li>をクリックした時の処理
     			li.onclick = () => {
 					// 入力ダイアログを表示し、入力された値をnewTitleに格納
-  					const newTitle = prompt("新しいタイトルを入力", todo.title);
-  					// 何も入力されていない場合は、処理をここで終わらせる
-  					if (!newTitle) return;
+  					const newTitle = prompt("新しいタイトルを入力", todo.title)?.trim();　//promptがある場合trimを実行
+  					
+  					if (!newTitle) {
+				        alert('タイトルを入力してください');
+				        return;
+				    }
+				    if (newTitle.length > 50) {
+				        alert('タイトルは50文字以内で入力してください');
+				        return;
+				    }
   					// PUTリクエストを送ってタイトルを更新
 					fetch(`/todos/${todo.id}`, {
     					method: "PUT",
@@ -70,9 +84,17 @@ function fetchTodos() {
 }
 
 // 追加ボタンがクリックされた時の処理
-addBtn.onclick = () => {
+addBtn.addEventListener('click', () => {
 	// 入力欄に書かれた文字列を取得
-    const title = todoTitle.value;
+    const title = todoTitle.value.trim(); //trim()で前後の空白（スペース、タブ、改行）を削除
+    if (!title) {
+        alert('タイトルを入力してください');
+        return;
+    }
+    if (title.length > 50) {
+        alert('タイトルは50文字以内で入力してください');
+        return;
+    }
     // POSTリクエストを送って新しいTodoを作成
     fetch('/todos', {
         method: 'POST',
@@ -96,22 +118,34 @@ addBtn.onclick = () => {
     })
     // エラーの場合、アラートで表示
     .catch(err => alert(JSON.stringify(err))); //errをJSON.stringifyで文字列化する
-}
+});
 
 // 削除ボタンが押された時の処理
 function deleteTodo(id) {
 	// 削除APIを呼ぶ
-    fetch(`/todos/${id}`, { method: 'DELETE' })
-    	// 削除後に一覧を取得
-        .then(() => fetchTodos());
+    fetch(`/todos/${id}`, { method: 'DELETE' })        
+    .then(() => {
+		// li要素にidを付与
+		const li = document.getElementById(`todo-${id}`);
+		// li を削除
+		if (li) li.remove();
+    });
 }
 
 // 完了切替ボタンが押された時の処理
 function toggleTodo(id) {
 	// 更新APIを呼ぶ
     fetch(`/todos/${id}/toggle`, { method: 'PATCH' })
-    	// 更新後に一覧を取得
-    	.then(() => fetchTodos());
+    // APIから返ってきたJSON文字列をJavascriptオブジェクトに変換
+    .then(res => res.json())
+    .then(updatedTodo => { 
+		// li要素にidを付与
+		const li = document.getElementById(`todo-${id}`);
+		// doneがtrueの場合は、取り消し線を引く
+		if (li) {
+			li.style.textDecoration = updatedTodo.done ? "line-through" : "none";
+		}
+	});
 }
 
 // 初期表示

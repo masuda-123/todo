@@ -71,7 +71,5 @@ public class TodoService {
         todo.setDone(!todo.isDone()); // true ⇄ false 反転
         return todoRepository.save(todo);
     }
-
-
 }
 
