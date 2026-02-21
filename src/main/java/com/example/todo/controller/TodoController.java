@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todo.dto.TodoRequest;
-import com.example.todo.entity.Todo;
+import com.example.todo.dto.TodoResponse;
 import com.example.todo.service.TodoService;
 
 import jakarta.validation.Valid;
@@ -32,25 +32,25 @@ public class TodoController {
 	
     // Todo一覧取得
     @GetMapping
-    public List<Todo> getTodos() {
+    public List<TodoResponse> getTodos() {
         return todoService.findAll();
     }
     
     // Todo保存
     @PostMapping
-    public Todo createTodo(@Valid @RequestBody TodoRequest request) { // @Valid = Todoオブジェクトのバリデーションを実行
+    public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { // @Valid = Todoオブジェクトのバリデーションを実行
         return todoService.save(request.getTitle());
     }
     
     // Todo一件取得
     @GetMapping("/{id}")
-    public Todo getTodo(@PathVariable Long id) { // @PathVariable = URLから動的な値を受け取る
+    public TodoResponse getTodo(@PathVariable Long id) { // @PathVariable = URLから動的な値を受け取る
         return todoService.findById(id);
     }
     
     // Todo更新
     @PutMapping("/{id}")
-    public Todo updateTodo(
+    public TodoResponse updateTodo(
             @PathVariable Long id,
             @Valid @RequestBody TodoRequest request) { // @RequestBody  = リクエストボディ（JSON）から値を受け取る
 
@@ -66,7 +66,7 @@ public class TodoController {
     
     // Todoの完了未完了の切り替え
     @PatchMapping("/{id}/toggle")
-    public Todo toggleTodo(@PathVariable Long id) {
+    public TodoResponse toggleTodo(@PathVariable Long id) {
         return todoService.toggleTodo(id);
     }
 
