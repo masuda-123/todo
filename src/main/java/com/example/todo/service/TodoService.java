@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.todo.dto.TodoRequest;
 import com.example.todo.entity.Todo;
 import com.example.todo.exception.TodoNotFoundException;
 import com.example.todo.repository.TodoRepository;
@@ -26,7 +27,9 @@ public class TodoService {
     public Todo save(String title) {
         Todo todo = new Todo();
         todo.setTitle(title);
-        todo.setDone(false);
+        if(!todo.isDone()) {
+        	todo.setDone(false);
+        }
         return todoRepository.save(todo);
     }
     
@@ -37,17 +40,16 @@ public class TodoService {
     }
     
     // 更新
-    public Todo update(Long id, Todo updatedTodo) {
+    public Todo update(Long id, TodoRequest request) {
 
         // DBから既存データ取得（なければエラー）
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
 
         // 値を更新
-        todo.setTitle(updatedTodo.getTitle());
-        todo.setDone(updatedTodo.isDone());
+        todo.setTitle(request.getTitle());
 
-        // 保存（UPDATE実行）
+        // 保存
         return todoRepository.save(todo);
     }
     

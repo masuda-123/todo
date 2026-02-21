@@ -50,9 +50,9 @@ public class TodoController {
     @PutMapping("/{id}")
     public Todo updateTodo(
             @PathVariable Long id,
-            @Valid @RequestBody Todo todo) { // @RequestBody  = リクエストボディ（JSON）から値を受け取る
+            @Valid @RequestBody TodoRequest request) { // @RequestBody  = リクエストボディ（JSON）から値を受け取る
 
-        return todoService.update(id, todo);
+        return todoService.update(id, request);
     }
     
     // Todo削除
