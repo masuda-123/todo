@@ -61,6 +61,7 @@ public class TodoController {
         todoService.deleteTodo(id);
     }
     
+    // Todoの完了未完了の切り替え
     @PatchMapping("/{id}/toggle")
     public Todo toggleTodo(@PathVariable Long id) {
         return todoService.toggleTodo(id);

@@ -2,11 +2,10 @@ package com.example.todo.service;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.todo.entity.Todo;
+import com.example.todo.exception.TodoNotFoundException;
 import com.example.todo.repository.TodoRepository;
 
 @Service
@@ -34,7 +33,7 @@ public class TodoService {
     // 1件取得
     public Todo findById(Long id) {
         return todoRepository.findById(id)
-        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found"));
+        	.orElseThrow(() -> new TodoNotFoundException(id)); // idが見つからない場合は onElseThrowが実行される
     }
     
     // 更新
@@ -42,7 +41,7 @@ public class TodoService {
 
         // DBから既存データ取得（なければエラー）
         Todo todo = todoRepository.findById(id)
-        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found"));
+        	.orElseThrow(() -> new TodoNotFoundException(id));
 
         // 値を更新
         todo.setTitle(updatedTodo.getTitle());
@@ -57,15 +56,16 @@ public class TodoService {
 
         // 存在チェック（なければエラー）
         Todo todo = todoRepository.findById(id)
-        		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found"));
+        	.orElseThrow(() -> new TodoNotFoundException(id));
 
         // 削除
         todoRepository.delete(todo);
     }
     
+    // 完了、未完了の切り替え
     public Todo toggleTodo(Long id) {
         Todo todo = todoRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo not found"));
+        	.orElseThrow(() -> new TodoNotFoundException(id));
         todo.setDone(!todo.isDone()); // true ⇄ false 反転
         return todoRepository.save(todo);
     }
