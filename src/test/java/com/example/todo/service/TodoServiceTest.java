@@ -48,6 +48,9 @@ class TodoServiceTest {
         // 検証
         assertEquals(2, result.size()); //2件データが返っていることを確認
         assertEquals("テスト1", result.get(0).getTitle()); //1件目のタイトルが正しいことを確認
+        
+        // Repositoryが呼ばれたか確認
+        verify(todoRepository).findAll();
     }
 
     // ----------------------------
@@ -66,6 +69,9 @@ class TodoServiceTest {
         // 検証
         assertEquals("新規Todo", result.getTitle()); //タイトルが正しいことを確認
         assertFalse(result.isDone()); //doneがfalseであることを確認
+        
+        // Repositoryが1回呼ばれたか確認
+        verify(todoRepository, times(1)).save(any());
     }
 
     // ----------------------------
@@ -85,6 +91,10 @@ class TodoServiceTest {
         
         // 検証
         assertFalse(result.isDone()); // true → false に変わる
+        
+        // Repositoryが呼ばれたか確認
+        verify(todoRepository).findById(1L);
+        verify(todoRepository, times(1)).save(any());
     }
     
     @Test
