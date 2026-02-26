@@ -97,6 +97,9 @@ class TodoServiceTest {
         verify(todoRepository, times(1)).save(any());
     }
     
+    // ----------------------------
+    // 異常系
+    // ----------------------------
     @Test
     void toggleTodo_IDが存在しない場合_例外() {
         // Repositoryが何も返さないように設定
