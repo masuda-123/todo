@@ -8,8 +8,13 @@ public class TodoRequest {
     @NotBlank(message = "タイトルは必須です")
     @Size(max = 50, message = "50文字以内にしてください")
     private String title;
+    
+    // テスト用のコンストラクタ
+    public TodoRequest(String title) {
+        this.title = title;
+    }
 
-    public String getTitle() {
+	public String getTitle() {
         return title;
     }
 
@@ -17,4 +22,3 @@ public class TodoRequest {
         this.title = title;
     }
 }
-
