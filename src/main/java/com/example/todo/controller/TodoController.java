@@ -39,7 +39,7 @@ public class TodoController {
     // Todo保存
     @PostMapping
     public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { // @Valid = Todoオブジェクトのバリデーションを実行
-        return todoService.save(request.getTitle());
+        return todoService.create(request.getTitle());
     }
     
     // Todo一件取得
@@ -61,13 +61,13 @@ public class TodoController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTodo(@PathVariable Long id) {
-        todoService.deleteTodo(id);
+        todoService.delete(id);
     }
     
     // Todoの完了未完了の切り替え
     @PatchMapping("/{id}/toggle")
     public TodoResponse toggleTodo(@PathVariable Long id) {
-        return todoService.toggleTodo(id);
+        return todoService.toggleStatus(id);
     }
 
 }

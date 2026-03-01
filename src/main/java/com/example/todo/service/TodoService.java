@@ -39,9 +39,8 @@ public class TodoService {
     }
 
     // 保存
-    public TodoResponse save(String title) {
+    public TodoResponse create(String title) {
         Todo todo = new Todo();
-        todo.setTitle(title);
         todo.setTitle(title);
         todo.setDone(false);
         todo.setCreatedAt(LocalDateTime.now());
@@ -70,7 +69,7 @@ public class TodoService {
     }
     
     // 削除
-    public void deleteTodo(Long id) {
+    public void delete(Long id) {
 
         // 存在チェック（なければエラー）
         Todo todo = todoRepository.findById(id)
@@ -81,7 +80,7 @@ public class TodoService {
     }
     
     // 完了、未完了の切り替え
-    public TodoResponse toggleTodo(Long id) {
+    public TodoResponse toggleStatus(Long id) {
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
         todo.setDone(!todo.isDone()); // true ⇄ false 反転

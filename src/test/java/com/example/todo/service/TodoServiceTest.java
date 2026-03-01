@@ -16,8 +16,9 @@ import com.example.todo.dto.TodoResponse;
 import com.example.todo.entity.Todo;
 import com.example.todo.repository.TodoRepository;
 
-// @SpringBootTestは、Spring Bootを起動してテストするという意味
+// アプリ全体を起動
 @SpringBootTest
+// ServiceTestではロジックが正しく処理されていることを確認（エラー処理、データの内容確認）
 class TodoServiceTest {
 
 	// SpringがTodoServiceを自動生成して注入
@@ -57,14 +58,14 @@ class TodoServiceTest {
     // 保存
     // ----------------------------
     @Test
-    void save_正常系() {
+    void create_正常系() {
     	// DBに保存するデータ
         Todo savedTodo = createTodo(1L, "新規Todo", false);
         // save()が呼ばれたら saveTodo()を返すように設定
         when(todoRepository.save(any(Todo.class))).thenReturn(savedTodo);
         
         // 実行
-        TodoResponse result = todoService.save("新規Todo");
+        TodoResponse result = todoService.create("新規Todo");
 
         // 検証
         assertEquals("新規Todo", result.getTitle()); //タイトルが正しいことを確認
@@ -78,7 +79,7 @@ class TodoServiceTest {
     // 完了切替
     // ----------------------------
     @Test
-    void toggleTodo_完了から未完了へ() {
+    void toggleStatus_正常系() {
     	// DBに保存するデータ
         Todo todo = createTodo(1L, "テスト", true);
         
@@ -87,7 +88,7 @@ class TodoServiceTest {
         // save()が呼ばれたら、このTodoを返すように設定
         when(todoRepository.save(any(Todo.class))).thenReturn(todo);
         // 実行
-        TodoResponse result = todoService.toggleTodo(1L);
+        TodoResponse result = todoService.toggleStatus(1L);
         
         // 検証
         assertFalse(result.isDone()); // true → false に変わる
@@ -101,26 +102,26 @@ class TodoServiceTest {
     // 異常系
     // ----------------------------
     @Test
-    void toggleTodo_IDが存在しない場合_例外() {
+    void toggleStatus_IDが存在しない場合_例外() {
         // Repositoryが何も返さないように設定
         when(todoRepository.findById(1L))
             .thenReturn(Optional.empty());
 
         // 例外が発生するか確認
         assertThrows(RuntimeException.class, () -> {
-            todoService.toggleTodo(1L);
+            todoService.toggleStatus(1L);
         });
     }
     
     @Test
-    void save_DBエラー時_例外() {
+    void create_DBエラー時_例外() {
     	// Repositoryが保存時に、エラーを返すように設定
         when(todoRepository.save(any(Todo.class)))
             .thenThrow(new RuntimeException("DB error"));
         
         // 例外が発生するか確認
         assertThrows(RuntimeException.class, () -> {
-            todoService.save("テスト");
+            todoService.create("テスト");
         });
     }
 

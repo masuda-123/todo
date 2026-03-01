@@ -23,8 +23,9 @@ import com.example.todo.service.TodoService;
 
 import tools.jackson.databind.ObjectMapper;
 
-@WebMvcTest(TodoController.class) //TodoControllerクラスだけを対象にweb層だけを実行
+@WebMvcTest(TodoController.class) // コントローラーだけ起動
 @AutoConfigureMockMvc(addFilters = false) // Security 無効化
+// ControllerTestではHTTPとして正しく動くかを確認
 class TodoControllerTest {
 
 	// Spring が提供するテスト用の 仮想的な Web クライアントを注入
@@ -43,7 +44,7 @@ class TodoControllerTest {
     // GET /todos
     // ----------------------------
     @Test
-    void getTodos_正常系() throws Exception {
+    void getTodo_正常系() throws Exception {
     	// テスト用のモックデータを作成
         List<TodoResponse> mockTodos = List.of(
                 new TodoResponse(1L, "テスト1", false, LocalDateTime.now()),
@@ -64,12 +65,12 @@ class TodoControllerTest {
     // POST /todos
     // ----------------------------
     @Test
-    void createTodo_正常系() throws Exception {
+    void postTodo_正常系() throws Exception {
     	// テスト用のモックデータを作成
         TodoResponse response = new TodoResponse(1L, "新規Todo", false, LocalDateTime.now());
 
         // save("新規Todo"）が呼ばれたら、モックデータを返すように設定
-        when(todoService.save("新規Todo")).thenReturn(response);
+        when(todoService.create("新規Todo")).thenReturn(response);
 
         // /todos にpostリクエストを送る
         mockMvc.perform(post("/todos")
@@ -84,7 +85,7 @@ class TodoControllerTest {
     // GET /todos/{id}
     // ----------------------------
     @Test
-    void getTodo_正常系() throws Exception {
+    void getId_正常系() throws Exception {
     	// テスト用のモックデータを作成
         TodoResponse response = new TodoResponse(1L, "テスト1", false, LocalDateTime.now());
 
@@ -101,7 +102,7 @@ class TodoControllerTest {
     // PUT /todos/{id}
     // ----------------------------
     @Test
-    void updateTodo_正常系() throws Exception {
+    void putTodo_正常系() throws Exception {
     	// テスト用のモックデータを作成
         TodoResponse response = new TodoResponse(1L, "更新後Todo", false, LocalDateTime.now());
 
@@ -122,25 +123,25 @@ class TodoControllerTest {
     @Test
     void deleteTodo_正常系() throws Exception {
     	// deleteTodoを呼んでも、何も返さないように設定
-        doNothing().when(todoService).deleteTodo(1L);
+        doNothing().when(todoService).delete(1L);
 
         // /todos/1 にdeleteリクエストを送る
         mockMvc.perform(delete("/todos/1"))
         		.andExpect(status().isNoContent()); // HTTPステータスが204であることを確認
 
-        verify(todoService, times(1)).deleteTodo(1L); // todoServiceが1回呼ばれたことを確認
+        verify(todoService, times(1)).delete(1L); // todoServiceが1回呼ばれたことを確認
     }
 
     // ----------------------------
     // PATCH /todos/{id}/toggle
     // ----------------------------
     @Test
-    void toggleTodo_正常系() throws Exception {
+    void patchTodo_正常系() throws Exception {
     	// テスト用のモックデータを作成
         TodoResponse response = new TodoResponse(1L, "テスト1", true, LocalDateTime.now());
 
         // toggleTodo(1L)が呼ばれたら、モックデータを返すように設定
-        when(todoService.toggleTodo(1L)).thenReturn(response);
+        when(todoService.toggleStatus(1L)).thenReturn(response);
 
         // /todos/1/toggle にpatchリクエストを送る
         mockMvc.perform(patch("/todos/1/toggle")
@@ -153,7 +154,7 @@ class TodoControllerTest {
     // 異常系
     // ----------------------------
     @Test
-    void getTodo_ID存在しない場合_404() throws Exception {
+    void getId_ID存在しない場合_404() throws Exception {
     	// findByIdが呼ばれたら、例外を投げるように設定
         when(todoService.findById(1L)).thenThrow(new TodoNotFoundException(1L));
 
@@ -163,7 +164,7 @@ class TodoControllerTest {
     }
     
     @Test
-    void updateTodo_タイトル空文字_400() throws Exception {
+    void putTodo_タイトル空文字_400() throws Exception {
     	// タイトルが空文字のrequestオブジェクトを作成
         TodoRequest request = new TodoRequest("");
         // requestオブジェクトをJSON文字列に変換
@@ -177,7 +178,7 @@ class TodoControllerTest {
     }
     
     @Test
-    void updateTodo_タイトルが50文字超_400() throws Exception {
+    void putTodo_タイトルが50文字超_400() throws Exception {
     	// タイトルが51文字のrequestオブジェクトを作成
         String longTitle = "あ".repeat(51);
         TodoRequest request = new TodoRequest(longTitle);
@@ -195,7 +196,7 @@ class TodoControllerTest {
     @Test
     void deleteTodo_ID存在しない場合_404() throws Exception {
     	// deleteTodoが呼ばれたら、例外を投げるように設定
-    	doThrow(new TodoNotFoundException(1L)).when(todoService).deleteTodo(1L);
+    	doThrow(new TodoNotFoundException(1L)).when(todoService).delete(1L);
 
      // /togos/1 にdeleteリクエストを送る
         mockMvc.perform(delete("/todos/1"))
