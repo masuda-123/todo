@@ -49,6 +49,35 @@ public class TodoIntegrationTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2));
     }
+    
+    // ----------------------------
+    // IDから取得_正常系
+    // ----------------------------
+    @Test
+    void getTodo_正常系() throws Exception {
+        TodoRequest request = new TodoRequest("取得テスト");
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andReturn().getResponse().getContentAsString();
+
+        // 作成した Todo の ID を取得
+        Long id = objectMapper.readTree(response).get("id").asLong();
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/todos/" + id))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("取得テスト"));
+    }
+    
+    // ----------------------------
+    // IDから取得_異常系（存在しないID）
+    // ----------------------------
+    @Test
+    void getTodo_存在しないID() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/todos/999"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
 
     // ----------------------------
     // 保存_正常系
@@ -92,67 +121,7 @@ public class TodoIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
-
-    // ----------------------------
-    // IDから取得_正常系
-    // ----------------------------
-    @Test
-    void getTodo_正常系() throws Exception {
-        TodoRequest request = new TodoRequest("取得テスト");
-
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andReturn().getResponse().getContentAsString();
-
-        // 作成した Todo の ID を取得
-        Long id = objectMapper.readTree(response).get("id").asLong();
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/todos/" + id))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("取得テスト"));
-    }
     
-    // ----------------------------
-    // IDから取得_異常系（存在しないID）
-    // ----------------------------
-    @Test
-    void getTodo_存在しないID() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/todos/999"))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
-    }
-
-    // ----------------------------
-    // 削除_正常系
-    // ----------------------------
-    @Test
-    void deleteTodo_正常系() throws Exception {
-        TodoRequest request = new TodoRequest("削除テスト");
-
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andReturn().getResponse().getContentAsString();
-
-        Long id = objectMapper.readTree(response).get("id").asLong();
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/todos/" + id))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
-
-        // 削除後に GET すると 404
-        mockMvc.perform(MockMvcRequestBuilders.get("/todos/" + id))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
-    }
-    
-    // ----------------------------
-    // 削除_異常系（存在しないID）
-    // ----------------------------
-    @Test
-    void deleteTodo_存在しないID() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/todos/" + 999))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
-    }
-
     // ----------------------------
     // 更新_正常系
     // ----------------------------
@@ -219,6 +188,37 @@ public class TodoIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    // ----------------------------
+    // 削除_正常系
+    // ----------------------------
+    @Test
+    void deleteTodo_正常系() throws Exception {
+        TodoRequest request = new TodoRequest("削除テスト");
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andReturn().getResponse().getContentAsString();
+
+        Long id = objectMapper.readTree(response).get("id").asLong();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/todos/" + id))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        // 削除後に GET すると 404
+        mockMvc.perform(MockMvcRequestBuilders.get("/todos/" + id))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+    
+    // ----------------------------
+    // 削除_異常系（存在しないID）
+    // ----------------------------
+    @Test
+    void deleteTodo_存在しないID() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/todos/" + 999))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
     
     // ----------------------------

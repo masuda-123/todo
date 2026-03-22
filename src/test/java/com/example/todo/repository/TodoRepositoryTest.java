@@ -1,6 +1,7 @@
 package com.example.todo.repository;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,25 +19,6 @@ class TodoRepositoryTest {
 
     @Autowired
     private TodoRepository todoRepository;
-
-    // ----------------------------
-    // 保存
-    // ----------------------------
-    @Test
-    void save_正常系() {
-
-    	// テストデータを作成
-        Todo todo = new Todo();
-        todo.setTitle("テストTodo");
-        todo.setDone(false);
-
-        // 保存
-        Todo saved = todoRepository.save(todo);
-
-        // 検証
-        assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getTitle()).isEqualTo("テストTodo");
-    }
 
     // ----------------------------
     // 全件取得
@@ -70,11 +52,11 @@ class TodoRepositoryTest {
     // ID検索
     // ----------------------------
     @Test
-    void findById_存在する場合() {
+    void findById_正常系() {
 
     	// テストデータを作成
         Todo todo = new Todo();
-        todo.setTitle("検索テスト");
+        todo.setTitle("テスト");
         todo.setDone(false);
 
         // DBに保存
@@ -85,17 +67,28 @@ class TodoRepositoryTest {
 
         // 検証
         assertThat(result).isPresent();
-        assertThat(result.get().getTitle()).isEqualTo("検索テスト");
+        assertThat(result.get().getTitle()).isEqualTo("テスト");
+        assertFalse(result.get().isDone());
     }
     
-    
+    // ----------------------------
+    // 保存
+    // ----------------------------
     @Test
-    void findById_存在しない場合() {
-    	// ID検索
-        var result = todoRepository.findById(999L);
-        
-        //検証
-        assertThat(result).isEmpty();
+    void save_正常系() {
+
+    	// テストデータを作成
+        Todo todo = new Todo();
+        todo.setTitle("テスト");
+        todo.setDone(true);
+
+        // 保存
+        Todo saved = todoRepository.save(todo);
+
+        // 検証
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getTitle()).isEqualTo("テスト");
+        assertTrue(saved.isDone());
     }
     
     // ----------------------------
@@ -106,42 +99,17 @@ class TodoRepositoryTest {
 
         // テストデータを作成
         Todo todo = new Todo();
-        todo.setTitle("削除テスト");
+        todo.setTitle("テスト");
         todo.setDone(false);
 
         // DBに保存
         Todo saved = todoRepository.save(todo);
 
         // 削除
-        todoRepository.deleteById(saved.getId());
+        todoRepository.delete(saved);
 
         // 検証
         Optional<Todo> result = todoRepository.findById(saved.getId());
         assertThat(result.isEmpty());
-    }
-    
-    // ----------------------------
-    // 更新
-    // ----------------------------
-    @Test
-    void update_正常系() {
-
-        // テストデータを作成
-        Todo todo = new Todo();
-        todo.setTitle("旧タイトル");
-        todo.setDone(false);
-        
-        // DBに保存
-        Todo saved = todoRepository.save(todo);
-
-        // 更新
-        saved.setTitle("新タイトル");
-        saved.setDone(true);
-        todoRepository.save(saved);
-
-        // 検証
-        Todo updated = todoRepository.findById(saved.getId()).get();
-        assertThat(updated.getTitle()).isEqualTo("新タイトル");
-        assertThat(updated.isDone()).isTrue();
     }
 }

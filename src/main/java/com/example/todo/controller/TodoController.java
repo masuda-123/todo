@@ -36,16 +36,16 @@ public class TodoController {
         return todoService.findAll();
     }
     
-    // Todo保存
-    @PostMapping
-    public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { // @Valid = Todoオブジェクトのバリデーションを実行
-        return todoService.create(request.getTitle());
-    }
-    
     // Todo一件取得
     @GetMapping("/{id}")
     public TodoResponse getTodo(@PathVariable Long id) { // @PathVariable = URLから動的な値を受け取る
         return todoService.findById(id);
+    }
+    
+    // Todo保存
+    @PostMapping
+    public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { // @Valid = Todoオブジェクトのバリデーションを実行
+        return todoService.create(request.getTitle());
     }
     
     // Todo更新
