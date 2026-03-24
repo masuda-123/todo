@@ -88,13 +88,11 @@ class TodoControllerTest {
         
         // createが呼ばれたら、mockResponseを返すように設定
         when(todoService.create(anyString())).thenReturn(mockResponse);
-        // requestをjson文字列に変換
-        String json = objectMapper.writeValueAsString(request);
 
         // "/todos" にpostリクエストを送る
         mockMvc.perform(post("/todos")
                 .contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
-                .content(json))  // リクエストボディに入力データを入れる
+                .content(objectMapper.writeValueAsString(request)))  // リクエストボディにrequestをjson文字列に変換して渡す
                 .andExpect(status().isOk())  // HTTPステータスが200であることを確認
                 .andExpect(jsonPath("$.title").value("テスト")) // タイトルが正しいことを確認
                 .andExpect(jsonPath("$.done").value(false)); // doneが正しいことを確認
@@ -110,13 +108,11 @@ class TodoControllerTest {
     void postTodo_タイトル空文字_400() throws Exception {
     	// テストデータ作成
     	TodoRequest request = new TodoRequest("");
-    	// requestをjson文字列に変換
-        String json = objectMapper.writeValueAsString(request);
 
         // "/todos" にpostリクエストを送る
         mockMvc.perform(post("/todos")
         		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
-        		.content(json))  // リクエストボディに入力データを入れる
+        		.content(objectMapper.writeValueAsString(request)))  // リクエストボディにrequestをjson文字列に変換して渡す
         		.andExpect(status().isBadRequest()); // バリデーションエラーが発生することを確認
     }
     
@@ -130,14 +126,11 @@ class TodoControllerTest {
         String longTitle = "あ".repeat(51);
         // requestをjson文字列に変換
         TodoRequest request = new TodoRequest(longTitle);
-        
-        // requestオブジェクトをJSON文字列に変換
-        String json = objectMapper.writeValueAsString(request);
 
         // "/todos" にpostリクエストを送る
         mockMvc.perform(post("/todos")
                 .contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
-                .content(json)) // リクエストボディに入力データを入れる
+                .content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
                	.andExpect(status().isBadRequest()); // バリデーションエラーが発生することを確認
     }
     
@@ -153,13 +146,11 @@ class TodoControllerTest {
         
         // updateが呼ばれたら、mockResponseを返すように設定
         when(todoService.update(eq(1L), any(TodoRequest.class))).thenReturn(mockResponse);
-        // requestをjson文字列に変換
-        String json = objectMapper.writeValueAsString(request);
 
         // "/todos/1" にputリクエストを送る
         mockMvc.perform(put("/todos/1")
                 .contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
-                .content(json))  // リクエストボディに入力データを入れる
+                .content(objectMapper.writeValueAsString(request)))  // リクエストボディにrequestをjson文字列に変換して渡す
                 .andExpect(status().isOk())  // HTTPステータスが200であることを確認
                 .andExpect(jsonPath("$.title").value("テスト")); // タイトルが正しいことを確認
         
