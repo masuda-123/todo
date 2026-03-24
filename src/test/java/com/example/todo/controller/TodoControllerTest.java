@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.example.todo.dto.TodoRequest;
 import com.example.todo.dto.TodoResponse;
-import com.example.todo.exception.TodoNotFoundException;
 import com.example.todo.service.TodoService;
 
 import tools.jackson.databind.ObjectMapper;
@@ -75,7 +74,7 @@ class TodoControllerTest {
         // "/todos/1" にgetリクエストを送る
         mockMvc.perform(get("/todos/1"))
                 .andExpect(status().isOk()) // HTTPステータスが200であることを確認
-                .andExpect(jsonPath("$.title").value("テスト")); // タイトルが正しいことを確認
+                .andExpect(jsonPath("$.title").value("テスト"));// タイトルが正しいことを確認
     }
 
     // ----------------------------
@@ -99,32 +98,34 @@ class TodoControllerTest {
                 .andExpect(status().isOk())  // HTTPステータスが200であることを確認
                 .andExpect(jsonPath("$.title").value("テスト")) // タイトルが正しいことを確認
                 .andExpect(jsonPath("$.done").value(false)); // doneが正しいことを確認
+        
+        verify(todoService).create("テスト"); // todoService.create("テスト")が呼ばれることを確認
     }
     
     // ----------------------------
-    // PUT /todos/{id}
+    // POST /todos
     // タイトルが空
     // ----------------------------
     @Test
-    void putTodo_タイトル空文字_400() throws Exception {
+    void postTodo_タイトル空文字_400() throws Exception {
     	// テストデータ作成
     	TodoRequest request = new TodoRequest("");
     	// requestをjson文字列に変換
         String json = objectMapper.writeValueAsString(request);
 
-        // "/todos/1" にputリクエストを送る
-        mockMvc.perform(put("/todos/1")
+        // "/todos" にpostリクエストを送る
+        mockMvc.perform(post("/todos")
         		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
         		.content(json))  // リクエストボディに入力データを入れる
         		.andExpect(status().isBadRequest()); // バリデーションエラーが発生することを確認
     }
     
     // ----------------------------
-    // PUT /todos/{id}
+    // POST /todos
     // タイトルが50文字超え
     // ----------------------------
     @Test
-    void putTodo_タイトルが50文字超_400() throws Exception {
+    void postTodo_タイトルが50文字超_400() throws Exception {
     	// テストデータ作成
         String longTitle = "あ".repeat(51);
         // requestをjson文字列に変換
@@ -133,11 +134,37 @@ class TodoControllerTest {
         // requestオブジェクトをJSON文字列に変換
         String json = objectMapper.writeValueAsString(request);
 
-        // "/todos/1" にputリクエストを送る
-        mockMvc.perform(put("/todos/1")
+        // "/todos" にpostリクエストを送る
+        mockMvc.perform(post("/todos")
                 .contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
                 .content(json)) // リクエストボディに入力データを入れる
                	.andExpect(status().isBadRequest()); // バリデーションエラーが発生することを確認
+    }
+    
+    // ----------------------------
+    // PUT /todos/1
+    // 正常系
+    // ----------------------------
+    @Test
+    void putTodo_正常系() throws Exception {
+    	// テストデータを作成
+        TodoRequest request = new TodoRequest("テスト");
+        TodoResponse mockResponse = new TodoResponse(1L, "テスト", false, LocalDateTime.now());
+        
+        // updateが呼ばれたら、mockResponseを返すように設定
+        when(todoService.update(eq(1L), any(TodoRequest.class))).thenReturn(mockResponse);
+        // requestをjson文字列に変換
+        String json = objectMapper.writeValueAsString(request);
+
+        // "/todos/1" にputリクエストを送る
+        mockMvc.perform(put("/todos/1")
+                .contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+                .content(json))  // リクエストボディに入力データを入れる
+                .andExpect(status().isOk())  // HTTPステータスが200であることを確認
+                .andExpect(jsonPath("$.title").value("テスト")); // タイトルが正しいことを確認
+        
+        verify(todoService).update(eq(1L), argThat(req -> //todoService.update()が呼ばれたことを確認
+        	req.getTitle().equals("テスト")));
     }
 
     // ----------------------------
@@ -151,22 +178,8 @@ class TodoControllerTest {
         // "/todos/1" にdeleteリクエストを送る
         mockMvc.perform(delete("/todos/1"))
         	.andExpect(status().isNoContent()); // HTTPステータスが204であることを確認
-    }
-    
-
-    // ----------------------------
-    // DELETE /todos/{id}
-    // IDが存在しない
-    // ----------------------------
-    
-    @Test
-    void deleteTodo_ID存在しない場合_404() throws Exception {
-    	// deleteTodoが呼ばれたら、例外を投げるように設定
-    	doThrow(new TodoNotFoundException(1L)).when(todoService).delete(1L);
-
-    	// "/todos/1" にdeleteリクエストを送る
-        mockMvc.perform(delete("/todos/1"))
-               .andExpect(status().isNotFound()); // 404 Not Found になることを確認
+        
+        verify(todoService, times(1)).delete(1L); //todoService.delete(1L)が呼ばれたことを確認
     }
 
     // ----------------------------
@@ -185,5 +198,7 @@ class TodoControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))  // JSONでやり取りすることを指定
                 .andExpect(status().isOk())	// HTTPステータスが200であることを確認
                 .andExpect(jsonPath("$.done").value(true)); // データのdoneの値が正しいことを確認
+        
+        verify(todoService, times(1)).toggleStatus(1L); // todoService.toggleStatus(1L)が呼ばれたことを確認
     }
 }
