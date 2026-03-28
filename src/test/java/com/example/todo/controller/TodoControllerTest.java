@@ -44,7 +44,6 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void getAllTodos_正常系() throws Exception {
-    	// テストデータを作成
         List<TodoResponse> mockResponses = List.of(
                 new TodoResponse(1L, "テスト1", false, LocalDateTime.now()),
                 new TodoResponse(2L, "テスト2", true, LocalDateTime.now())
@@ -65,7 +64,6 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void getTodo_正常系() throws Exception {
-    	// テストデータを作成
         TodoResponse mockResponse = new TodoResponse(1L, "テスト", false, LocalDateTime.now());
 
         // findByIdが呼ばれたら、mockTodoを返すように設定
@@ -82,7 +80,6 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void postTodo_正常系() throws Exception {
-    	// テストデータを作成
         TodoRequest request = new TodoRequest("テスト");
         TodoResponse mockResponse = new TodoResponse(1L, "テスト", false, LocalDateTime.now());
         
@@ -106,7 +103,6 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void postTodo_タイトル空文字_400() throws Exception {
-    	// テストデータ作成
     	TodoRequest request = new TodoRequest("");
 
         // "/todos" にpostリクエストを送る
@@ -122,7 +118,6 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void postTodo_タイトルが50文字超_400() throws Exception {
-    	// テストデータ作成
         String longTitle = "あ".repeat(51);
         // requestをjson文字列に変換
         TodoRequest request = new TodoRequest(longTitle);
@@ -140,7 +135,6 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void putTodo_正常系() throws Exception {
-    	// テストデータを作成
         TodoRequest request = new TodoRequest("テスト");
         TodoResponse mockResponse = new TodoResponse(1L, "テスト", false, LocalDateTime.now());
         
@@ -178,7 +172,6 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void patchTodo_正常系() throws Exception {
-    	// テストデータを作成
         TodoResponse mockResponse = new TodoResponse(1L, "テスト1", true, LocalDateTime.now());
 
         // toggleTodo(1L)が呼ばれたら、mockResponseを返すように設定
