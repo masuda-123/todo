@@ -1,6 +1,7 @@
 package com.example.todo.integration;
 
-import java.util.Map;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,11 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.todo.dto.TodoRequest;
 
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 
@@ -33,21 +34,27 @@ public class TodoIntegrationTest {
     // ----------------------------
     @Test
     void getAllTodos_正常系() throws Exception {
-        // 2件作成
-        TodoRequest r1 = new TodoRequest("Todo1");
-        TodoRequest r2 = new TodoRequest("Todo2");
+        TodoRequest request1 = new TodoRequest("テスト1");
+        TodoRequest request2 = new TodoRequest("テスト2");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(r1)));
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(r2)));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/todos"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2));
+        // "/todos" に対してpostリクエストを送る
+        mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+                .content(objectMapper.writeValueAsString(request1))); // リクエストボディにrequestをjson文字列に変換して渡す
+        
+        // "/todos" に対してpostリクエストを送る
+        mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+                .content(objectMapper.writeValueAsString(request2))); // リクエストボディにrequestをjson文字列に変換して渡す
+        
+        // "/todos" に対してgetリクエストを送る
+        mockMvc.perform(get("/todos"))
+                .andExpect(status().isOk()) // HTTPステータスが200であることを確認
+                .andExpect(jsonPath("$.length()").value(2)) // 件数を確認
+                .andExpect(jsonPath("$[0].title").value("テスト1")) // 1件目のタイトル確認
+                .andExpect(jsonPath("$[0].done").value(false))   // 1件目の完了状態確認
+                .andExpect(jsonPath("$[1].title").value("テスト2")) // 2件目のタイトル確認
+                .andExpect(jsonPath("$[1].done").value(false));  // 2件目の完了状態確認
     }
     
     // ----------------------------
@@ -55,19 +62,21 @@ public class TodoIntegrationTest {
     // ----------------------------
     @Test
     void getTodo_正常系() throws Exception {
-        TodoRequest request = new TodoRequest("取得テスト");
+        TodoRequest request = new TodoRequest("テスト");
 
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andReturn().getResponse().getContentAsString();
+        String response = mockMvc.perform(post("/todos") // "/todos" に対してpostリクエストを送る
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+        		.andReturn().getResponse().getContentAsString(); // リクエストのレスポンスを文字列化
 
-        // 作成した Todo の ID を取得
+        // レスポンスからidを取得
         Long id = objectMapper.readTree(response).get("id").asLong();
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/todos/" + id))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("取得テスト"));
+        // "/todos/{id}"にgetリクエストを送る
+        mockMvc.perform(get("/todos/" + id))
+        		.andExpect(status().isOk()) // HTTPステータスが200であることを確認
+        		.andExpect(jsonPath("$.title").value("テスト")) // タイトルが正しいことを確認
+        		.andExpect(jsonPath("$.done").value(false)); // 完了状態がfalseであることを確認
     }
     
     // ----------------------------
@@ -75,8 +84,9 @@ public class TodoIntegrationTest {
     // ----------------------------
     @Test
     void getTodo_存在しないID() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/todos/999"))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    	// "/todos/999"にgetリクエストを送る
+        mockMvc.perform(get("/todos/999"))
+                .andExpect(status().isNotFound()); // HTTPステータスが404であることを確認
     }
 
     // ----------------------------
@@ -84,15 +94,16 @@ public class TodoIntegrationTest {
     // ----------------------------
     @Test
     void createTodo_正常系() throws Exception {
-        TodoRequest request = new TodoRequest("統合テスト");
+        TodoRequest request = new TodoRequest("テスト");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("統合テスト"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.done").value(false))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").exists());
+        // "/todos" にpostリクエストを送る
+        mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+        		.andExpect(status().isOk()) // HTTPステータスが200であることを確認
+        		.andExpect(jsonPath("$.title").value("テスト")) // タイトルが正しいことを確認
+        		.andExpect(jsonPath("$.done").value(false)) // 完了状態がfalseであることを確認
+        		.andExpect(jsonPath("$.createdAt").exists()); // 作成日が存在していることを確認
     }
     
     // ----------------------------
@@ -102,10 +113,11 @@ public class TodoIntegrationTest {
     void createTodo_タイトルが空文字() throws Exception {
         TodoRequest request = new TodoRequest("");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        // "/todos" にpostリクエストを送る
+        mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+        		.andExpect(status().isBadRequest()); // HTTPステータスが400であることを確認
     }
     
     // ----------------------------
@@ -115,11 +127,12 @@ public class TodoIntegrationTest {
     void createTodo_タイトルが50文字超() throws Exception {
     	String longTitle = "あ".repeat(51);
         TodoRequest request = new TodoRequest(longTitle);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        
+        // "/todos" にpostリクエストを送る
+        mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+                .andExpect(status().isBadRequest()); // HTTPステータスが400であることを確認
     }
     
     // ----------------------------
@@ -129,20 +142,41 @@ public class TodoIntegrationTest {
     void updateTodo_正常系() throws Exception {
         TodoRequest request = new TodoRequest("更新前");
 
+        // "/todos" にpostリクエストを送る
         String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andReturn().getResponse().getContentAsString();
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+        		.andReturn().getResponse().getContentAsString(); // リクエストのレスポンスを文字列化
 
+        // レスポンスからidとcreatedAtを取得
+        JsonNode json = objectMapper.readTree(response);
         Long id = objectMapper.readTree(response).get("id").asLong();
+        String createdAtBefore = json.get("createdAt").asString();
 
         TodoRequest updateRequest = new TodoRequest("更新後");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/todos/" + id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("更新後"));
+        // "/todos/{id}" にputリクエストを送る
+        mockMvc.perform(put("/todos/" + id)
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(updateRequest))) // リクエストボディにupdateRequestをjson文字列に変換して渡す
+                .andExpect(status().isOk()) // HTTPステータスが200であることを確認
+                .andExpect(jsonPath("$.title").value("更新後")) // タイトルが変わっていることを確認
+                .andExpect(jsonPath("$.done").value(false)) // 完了状態が変わっていないことを確認
+                .andExpect(jsonPath("$.createdAt").value(createdAtBefore)); // 作成日が変わっていないことを確認
+    }
+    
+    // ----------------------------
+    // 更新_異常系（存在しないID）
+    // ----------------------------
+    @Test
+    void updateTodo_存在しないID() throws Exception {
+    	TodoRequest updateRequest = new TodoRequest("更新後");
+    	
+        // "/todos/999" にputリクエストを送る
+        mockMvc.perform(put("/todos/999")
+				.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+				.content(objectMapper.writeValueAsString(updateRequest))) // リクエストボディにuprateRequestをjson文字列に変換して渡す
+        		.andExpect(status().isNotFound()); // HTTPステータスが404であることを確認
     }
     
     // ----------------------------
@@ -152,19 +186,22 @@ public class TodoIntegrationTest {
     void updateTodo_タイトルが空() throws Exception {
         TodoRequest request = new TodoRequest("更新前");
 
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andReturn().getResponse().getContentAsString();
+        // "/todos" にpostリクエストを送る
+        String response = mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+        		.andReturn().getResponse().getContentAsString(); // リクエストのレスポンスを文字列化
 
+        // レスポンスからidを取得
         Long id = objectMapper.readTree(response).get("id").asLong();
 
         TodoRequest updateRequest = new TodoRequest("");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/todos/" + id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        // "/todos/{id}" にputリクエストを送る
+        mockMvc.perform(put("/todos/" + id)
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(updateRequest))) // リクエストボディにupdateRequestをjson文字列に変換して渡す
+        		.andExpect(status().isBadRequest()); // HTTPステータスが400であることを確認
     }
     
     // ----------------------------
@@ -174,20 +211,23 @@ public class TodoIntegrationTest {
     void updateTodo_タイトルが50文字超() throws Exception {
     	TodoRequest request = new TodoRequest("更新前");
     	
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andReturn().getResponse().getContentAsString();
+        // "/todos" にpostリクエストを送る
+        String response = mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+        		.andReturn().getResponse().getContentAsString(); // リクエストのレスポンスを文字列化
 
+        // レスポンスからidを取得
         Long id = objectMapper.readTree(response).get("id").asLong();
         
         String longTitle = "あ".repeat(51);
         TodoRequest updateRequest = new TodoRequest(longTitle);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/todos/" + id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        // "/todos/{id}" にputリクエストを送る
+        mockMvc.perform(put("/todos/" + id)
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(updateRequest))) // リクエストボディにupdateRequestをjson文字列に変換して渡す
+        		.andExpect(status().isBadRequest()); // HTTPステータスが400であることを確認
     }
 
     // ----------------------------
@@ -195,21 +235,24 @@ public class TodoIntegrationTest {
     // ----------------------------
     @Test
     void deleteTodo_正常系() throws Exception {
-        TodoRequest request = new TodoRequest("削除テスト");
+        TodoRequest request = new TodoRequest("テスト");
 
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andReturn().getResponse().getContentAsString();
+        // "/todos" にpostリクエストを送る
+        String response = mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+        		.andReturn().getResponse().getContentAsString(); // リクエストのレスポンスを文字列化
 
+        // レスポンスからidを取得
         Long id = objectMapper.readTree(response).get("id").asLong();
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/todos/" + id))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+        // "/todos/{id}" にdeleteリクエストを送る
+        mockMvc.perform(delete("/todos/" + id))
+                .andExpect(status().isNoContent()); // HTTPステータスが204であることを確認
 
-        // 削除後に GET すると 404
-        mockMvc.perform(MockMvcRequestBuilders.get("/todos/" + id))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+        // "/todos/{id}" にgetリクエストを送る
+        mockMvc.perform(get("/todos/" + id))
+                .andExpect(status().isNotFound()); // HTTPステータスが404であることを確認
     }
     
     // ----------------------------
@@ -217,8 +260,9 @@ public class TodoIntegrationTest {
     // ----------------------------
     @Test
     void deleteTodo_存在しないID() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/todos/" + 999))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    	// "/todos/{id}" にdeleteリクエストを送る
+        mockMvc.perform(delete("/todos/" + 999))
+                .andExpect(status().isNotFound()); // HTTPステータスが404であることを確認
     }
     
     // ----------------------------
@@ -226,24 +270,27 @@ public class TodoIntegrationTest {
     // ----------------------------
     @Test
     void toggleDone_正常系() throws Exception {
-        TodoRequest request = new TodoRequest("トグルテスト");
+        TodoRequest request = new TodoRequest("テスト");
 
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andReturn().getResponse().getContentAsString();
+        // "/todos" にpostリクエストを送る
+        String response = mockMvc.perform(post("/todos")
+        		.contentType(MediaType.APPLICATION_JSON) // JSONでやり取りすることを指定
+        		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
+        		.andReturn().getResponse().getContentAsString(); // リクエストのレスポンスを文字列化
 
+        // レスポンスからidとcreatedAtを取得
+        JsonNode json = objectMapper.readTree(response);
         Long id = objectMapper.readTree(response).get("id").asLong();
+        String createdAtBefore = json.get("createdAt").asString();
 
-        // PATCH で done を true に更新
-        Map<String, Object> patch = Map.of("done", true);
-        String patchJson = objectMapper.writeValueAsString(patch);
-
-        mockMvc.perform(MockMvcRequestBuilders.patch("/todos/" + id + "/toggle")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(patchJson))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.done").value(true));
+        // "/todos/{id}/toggle" にpatchリクエストを送る
+        mockMvc.perform(patch("/todos/" + id + "/toggle")
+        		.contentType(MediaType.APPLICATION_JSON)) // JSONでやり取りすることを指定
+        		.andExpect(status().isOk()) // HTTPステータスが200であることを確認
+        		.andExpect(jsonPath("$.done").value(true)) // 完了状態がfalseからtrueに変わっていることを確認
+        		.andExpect(jsonPath("$.title").value("テスト")) // タイトルが変わっていないことを確認
+        		.andExpect(jsonPath("$.createdAt").value(createdAtBefore)); // 作成日が変わっていないことを確認
+        		
     }
     
     // ----------------------------
@@ -251,7 +298,8 @@ public class TodoIntegrationTest {
     // ----------------------------
     @Test
     void toggleDone_異常系() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.patch("/todos/" + 999 + "/toggle"))
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+        // "/todos/999/toggle" にpatchリクエストを送る
+        mockMvc.perform(patch("/todos/" + 999 + "/toggle"))
+                .andExpect(status().isNotFound()); // HTTPステータスが404であることを確認
     }
 }
