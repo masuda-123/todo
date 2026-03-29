@@ -40,15 +40,10 @@ function updateTodoUI(updatedTodo) {
     const li = document.getElementById(`todo-${updatedTodo.id}`);
     // li要素がない場合はこの処理を抜ける
     if (!li) return;
-    // 更新後のタイトルをliの文字列に設定する
-    li.textContent = updatedTodo.title;
-    // 更新後のdoneがtrueの場合は取り消し線を引く
-    li.style.textDecoration = updatedTodo.done ? 'line-through' : 'none';
-
-    // <li>の子要素に完了切替ボタンを入れる
-    li.appendChild(createToggleBtn(updatedTodo));
-    // <li>の子要素に削除ボタンを入れる
-    li.appendChild(createDeleteBtn(updatedTodo));
+    // liの中のテキストだけ更新
+    const textDiv = li.querySelector('.text_wrapper');
+    textDiv.textContent = updatedTodo.title;
+    textDiv.style.textDecoration = updatedTodo.done ? 'line-through' : 'none';
 }
 
 
@@ -69,14 +64,25 @@ function fetchTodos() {
 				// createElementで<li>要素を作成
                 const li = document.createElement('li');
                 li.id = `todo-${todo.id}`;
+                
+                // createElementで<dev>要素を作成
+                const text_wrapper = document.createElement('div');
+                li.appendChild(text_wrapper);
+				text_wrapper.classList.add('text_wrapper');
+				text_wrapper.textContent = todo.title;  
                 // 完了なら取り消し線を表示
-                li.textContent = todo.title;
-                li.style.textDecoration = todo.done ? "line-through" : "none";
+               	text_wrapper.style.textDecoration = todo.done ? "line-through" : "none";
+               	
+               	// createElementで<dev>要素を作成
+                const btn_wrapper = document.createElement('div');
+                btn_wrapper.classList.add('btn_wrapper')
+                li.appendChild(btn_wrapper);
+                
 
-                // <li>の子要素に完了切替ボタンを入れる
-                li.appendChild(createToggleBtn(todo));
-                // <li>の子要素に削除ボタンを入れる
-                li.appendChild(createDeleteBtn(todo));
+                // btn_wrapperの子要素に完了切替ボタンを入れる
+                btn_wrapper.appendChild(createToggleBtn(todo));
+                // btn_wrapperの子要素に削除ボタンを入れる
+                btn_wrapper.appendChild(createDeleteBtn(todo));
 
                 // liクリックで編集
                 li.addEventListener('click', () => editTodo(todo));

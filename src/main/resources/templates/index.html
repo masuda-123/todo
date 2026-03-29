@@ -3,14 +3,19 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Insert title here</title>
+		<link rel="stylesheet" th:href="@{/style.css}">
 	</head>
 	<body>
-		<h1>Todo App</h1>
-	
-	    <input type="text" id="todoTitle" placeholder="Todoを入力">
-	    <button id="addBtn">追加</button>
-	
-	    <ul id="todoList"></ul>
+		<div class="wrapper">
+				<h1>Todo App</h1>
+			
+				<div class="todo_wrapper">
+				    <input type="text" id="todoTitle" placeholder="Todoを入力">
+				    <button id="addBtn">追加</button>
+				</div>
+			
+			    <ul id="todoList"></ul>
+		</div>
 	
 	    <script src="app.js"></script>
 	
