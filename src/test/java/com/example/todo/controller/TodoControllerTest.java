@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -45,8 +44,8 @@ class TodoControllerTest {
     @Test
     void getAllTodos_正常系() throws Exception {
         List<TodoResponse> mockResponses = List.of(
-                new TodoResponse(1L, "テスト1", false, LocalDateTime.now()),
-                new TodoResponse(2L, "テスト2", true, LocalDateTime.now())
+                new TodoResponse(1L, "テスト1", false),
+                new TodoResponse(2L, "テスト2", true)
         );
 
         // finaAll()が呼ばれたら、mockResponseを返すように設定
@@ -64,7 +63,7 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void getTodo_正常系() throws Exception {
-        TodoResponse mockResponse = new TodoResponse(1L, "テスト", false, LocalDateTime.now());
+        TodoResponse mockResponse = new TodoResponse(1L, "テスト", false);
 
         // findByIdが呼ばれたら、mockTodoを返すように設定
         when(todoService.findById(1L)).thenReturn(mockResponse);
@@ -81,7 +80,7 @@ class TodoControllerTest {
     @Test
     void postTodo_正常系() throws Exception {
         TodoRequest request = new TodoRequest("テスト");
-        TodoResponse mockResponse = new TodoResponse(1L, "テスト", false, LocalDateTime.now());
+        TodoResponse mockResponse = new TodoResponse(1L, "テスト", false);
         
         // createが呼ばれたら、mockResponseを返すように設定
         when(todoService.create(anyString())).thenReturn(mockResponse);
@@ -136,7 +135,7 @@ class TodoControllerTest {
     @Test
     void putTodo_正常系() throws Exception {
         TodoRequest request = new TodoRequest("テスト");
-        TodoResponse mockResponse = new TodoResponse(1L, "テスト", false, LocalDateTime.now());
+        TodoResponse mockResponse = new TodoResponse(1L, "テスト", false);
         
         // updateが呼ばれたら、mockResponseを返すように設定
         when(todoService.update(eq(1L), any(TodoRequest.class))).thenReturn(mockResponse);
@@ -172,7 +171,7 @@ class TodoControllerTest {
     // ----------------------------
     @Test
     void patchTodo_正常系() throws Exception {
-        TodoResponse mockResponse = new TodoResponse(1L, "テスト1", true, LocalDateTime.now());
+        TodoResponse mockResponse = new TodoResponse(1L, "テスト1", true);
 
         // toggleTodo(1L)が呼ばれたら、mockResponseを返すように設定
         when(todoService.toggleStatus(1L)).thenReturn(mockResponse);

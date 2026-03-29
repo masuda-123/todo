@@ -1,7 +1,5 @@
 package com.example.todo.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,9 +20,6 @@ public class Todo {
 	
 	private boolean done;
 	
-	private LocalDateTime createdAt;
-	
-	
 	public Todo() {}
 	
     public Long getId() { return id; }
@@ -35,7 +30,4 @@ public class Todo {
 
     public boolean isDone() { return done; }
     public void setDone(boolean done) { this.done = done; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

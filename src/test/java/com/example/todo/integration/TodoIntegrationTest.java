@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.todo.dto.TodoRequest;
 
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 
@@ -102,8 +101,7 @@ public class TodoIntegrationTest {
         		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
         		.andExpect(status().isOk()) // HTTPステータスが200であることを確認
         		.andExpect(jsonPath("$.title").value("テスト")) // タイトルが正しいことを確認
-        		.andExpect(jsonPath("$.done").value(false)) // 完了状態がfalseであることを確認
-        		.andExpect(jsonPath("$.createdAt").exists()); // 作成日が存在していることを確認
+        		.andExpect(jsonPath("$.done").value(false)); // 完了状態がfalseであることを確認
     }
     
     // ----------------------------
@@ -148,10 +146,8 @@ public class TodoIntegrationTest {
         		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
         		.andReturn().getResponse().getContentAsString(); // リクエストのレスポンスを文字列化
 
-        // レスポンスからidとcreatedAtを取得
-        JsonNode json = objectMapper.readTree(response);
+        // レスポンスからidを取得
         Long id = objectMapper.readTree(response).get("id").asLong();
-        String createdAtBefore = json.get("createdAt").asString();
 
         TodoRequest updateRequest = new TodoRequest("更新後");
 
@@ -161,8 +157,7 @@ public class TodoIntegrationTest {
         		.content(objectMapper.writeValueAsString(updateRequest))) // リクエストボディにupdateRequestをjson文字列に変換して渡す
                 .andExpect(status().isOk()) // HTTPステータスが200であることを確認
                 .andExpect(jsonPath("$.title").value("更新後")) // タイトルが変わっていることを確認
-                .andExpect(jsonPath("$.done").value(false)) // 完了状態が変わっていないことを確認
-                .andExpect(jsonPath("$.createdAt").value(createdAtBefore)); // 作成日が変わっていないことを確認
+                .andExpect(jsonPath("$.done").value(false)); // 完了状態が変わっていないことを確認
     }
     
     // ----------------------------
@@ -278,19 +273,15 @@ public class TodoIntegrationTest {
         		.content(objectMapper.writeValueAsString(request))) // リクエストボディにrequestをjson文字列に変換して渡す
         		.andReturn().getResponse().getContentAsString(); // リクエストのレスポンスを文字列化
 
-        // レスポンスからidとcreatedAtを取得
-        JsonNode json = objectMapper.readTree(response);
+        // レスポンスからidを取得
         Long id = objectMapper.readTree(response).get("id").asLong();
-        String createdAtBefore = json.get("createdAt").asString();
 
         // "/todos/{id}/toggle" にpatchリクエストを送る
         mockMvc.perform(patch("/todos/" + id + "/toggle")
         		.contentType(MediaType.APPLICATION_JSON)) // JSONでやり取りすることを指定
         		.andExpect(status().isOk()) // HTTPステータスが200であることを確認
         		.andExpect(jsonPath("$.done").value(true)) // 完了状態がfalseからtrueに変わっていることを確認
-        		.andExpect(jsonPath("$.title").value("テスト")) // タイトルが変わっていないことを確認
-        		.andExpect(jsonPath("$.createdAt").value(createdAtBefore)); // 作成日が変わっていないことを確認
-        		
+        		.andExpect(jsonPath("$.title").value("テスト"));// タイトルが変わっていないことを確認
     }
     
     // ----------------------------

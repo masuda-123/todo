@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,19 +100,13 @@ class TodoServiceTest {
         // Repository.save()が呼ばれたら mockTodoを使うように設定
         when(todoRepository.save(any(Todo.class))).thenReturn(mockTodo);
         
-        LocalDateTime before = LocalDateTime.now();
-        
         // 実行
         TodoResponse result = todoService.create("テスト");
-        
-        LocalDateTime after = LocalDateTime.now();
 
         // 検証
         verify(todoRepository, times(1)).save(any()); // Repositoryが1回呼ばれたか確認
         assertEquals("テスト", result.getTitle()); //タイトルが正しいことを確認
         assertFalse(result.isDone()); //doneがfalseであることを確認
-        assertTrue(result.getCreatedAt().isAfter(before)); //作成時刻が正しいことを確認
-        assertTrue(result.getCreatedAt().isBefore(after)); //作成時刻が正しいことを確認
     }
     
     // ----------------------------

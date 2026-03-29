@@ -1,6 +1,5 @@
 package com.example.todo.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -25,8 +24,7 @@ public class TodoService {
         return new TodoResponse(
             todo.getId(),
             todo.getTitle(),
-            todo.isDone(),
-            todo.getCreatedAt()
+            todo.isDone()
         );
     }
 
@@ -43,7 +41,6 @@ public class TodoService {
         Todo todo = new Todo();
         todo.setTitle(title);
         todo.setDone(false);
-        todo.setCreatedAt(LocalDateTime.now());
         return toResponse(todoRepository.save(todo));
     }
     
