@@ -103,11 +103,11 @@ function validateTitle(input) {
 	// 入力欄に書かれた文字列を取得
     const t = input?.trim(); // trim()で前後の空白（スペース、タブ、改行）を削除
     if (!t) {
-        alert('Todoを入力してください');
+        alert('タスク名を入力してください');
         return null;
     }
     if (t.length > 50) {
-        alert('Todoは50文字以内で入力してください');
+        alert('タスク名は50文字以内で入力してください');
         return null;
     }
     return t;
@@ -148,7 +148,7 @@ addBtn.addEventListener('click', () => {
 // ----------------------------
 function editTodo(todo) {
 	// 入力されたデータを取得
-	const newTitle = validateTitle(prompt("Todoを編集", todo.title));
+	const newTitle = validateTitle(prompt("タスク名の編集", todo.title));
 	// キャンセルが押せれた場合、もしくはから文字だった場合処理を中断
     if (!newTitle) return;
 	// PUTリクエストを送ってTodoデータを更新する
