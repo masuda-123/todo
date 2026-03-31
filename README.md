@@ -1,11 +1,11 @@
-# Todo APP
+# Todoアプリ
 
 ## 概要
 ブラウザ上でAPIを利用し、Todoタスクの作成・一覧取得・更新・削除が可能なwebアプリ
 
 ## 機能
 - Todo作成（バリデーションあり）
-- Todoタイトル更新
+- Todoタイトル更新（バリデーションあり）
 - Todoステータス更新
 - Todo一覧取得
 - Todo削除
@@ -17,7 +17,9 @@
 - H2（組み込みDB）
 - Maven
 - JUnit / MockMvc
-- HTML / JavaScript
+- HTML5（Thymeleafテンプレート）
+- CSS3
+- JavaScript（ES6）
 
 ## テスト
 - Contollerテスト
@@ -37,7 +39,6 @@
 3. 依存関係のダウンロード・ビルド
 4. アプリ起動
 5. ブラウザから http://localhost:8080 にアクセス
-6. Todoの追加・更新・削除が画面上で確認可能
 
 ## API例
 
