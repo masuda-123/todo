@@ -1,9 +1,9 @@
 // ----------------------------
 // HTML要素
 // ----------------------------
-const todoList = document.getElementById('todoList');
-const addBtn = document.getElementById('addBtn');
-const todoTitle = document.getElementById('todoTitle');
+const todoList = document.getElementById('todo-list');
+const addBtn = document.getElementById('add-btn');
+const inputTitle = document.getElementById('input-title');
 
 // ----------------------------
 // ボタン作成関数
@@ -41,7 +41,7 @@ function updateTodoUI(updatedTodo) {
     // li要素がない場合はこの処理を抜ける
     if (!li) return;
     // liの中のテキストだけ更新
-    const textDiv = li.querySelector('.text_wrapper');
+    const textDiv = li.querySelector('.text-wrapper');
     textDiv.textContent = updatedTodo.title;
     textDiv.style.textDecoration = updatedTodo.done ? 'line-through' : 'none';
 }
@@ -66,26 +66,26 @@ function fetchTodos() {
                 li.id = `todo-${todo.id}`;
                 
                 // createElementで<dev>要素を作成
-                const text_wrapper = document.createElement('div');
-                li.appendChild(text_wrapper);
-				text_wrapper.classList.add('text_wrapper');
-				text_wrapper.textContent = todo.title;  
+                const textWrapper = document.createElement('div');
+                li.appendChild(textWrapper);
+				textWrapper.classList.add('text-wrapper');
+				textWrapper.textContent = todo.title;  
                 // 完了なら取り消し線を表示
-               	text_wrapper.style.textDecoration = todo.done ? "line-through" : "none";
+               	textWrapper.style.textDecoration = todo.done ? "line-through" : "none";
                	
                	// createElementで<dev>要素を作成
-                const btn_wrapper = document.createElement('div');
-                btn_wrapper.classList.add('btn_wrapper')
-                li.appendChild(btn_wrapper);
+                const btnWrapper = document.createElement('div');
+                btnWrapper.classList.add('btn-wrapper')
+                li.appendChild(btnWrapper);
                 
 
                 // btn_wrapperの子要素に完了切替ボタンを入れる
-                btn_wrapper.appendChild(createToggleBtn(todo));
+                btnWrapper.appendChild(createToggleBtn(todo));
                 // btn_wrapperの子要素に削除ボタンを入れる
-                btn_wrapper.appendChild(createDeleteBtn(todo));
+                btnWrapper.appendChild(createDeleteBtn(todo));
 
-                // liクリックで編集
-                li.addEventListener('click', () => editTodo(todo));
+                // text_wrapperクリックで編集
+                textWrapper.addEventListener('click', () => editTodo(todo));
                 //todoListの子要素に<li>を入れる
                 todoList.appendChild(li);
             });
@@ -103,11 +103,11 @@ function validateTitle(input) {
 	// 入力欄に書かれた文字列を取得
     const t = input?.trim(); // trim()で前後の空白（スペース、タブ、改行）を削除
     if (!t) {
-        alert('タイトルを入力してください');
+        alert('Todoを入力してください');
         return null;
     }
     if (t.length > 50) {
-        alert('タイトルは50文字以内で入力してください');
+        alert('Todoは50文字以内で入力してください');
         return null;
     }
     return t;
@@ -118,7 +118,7 @@ function validateTitle(input) {
 // ----------------------------
 addBtn.addEventListener('click', () => {
 	// 入力欄に書かれた文字列を取得し、バリデーションを実行
-    const title = validateTitle(todoTitle.value);
+    const title = validateTitle(inputTitle.value);
     // キャンセルが押せれた場合、もしくはから文字だった場合処理を中断
     if (!title) return;
     // POSTリクエストを送ってTodoデータを追加する
@@ -135,7 +135,7 @@ addBtn.addEventListener('click', () => {
     })
     .then(() => {
 		// 入力欄を空にする
-        todoTitle.value = '';
+        inputTitle.value = '';
         // Todoの一覧を取得、表示
         fetchTodos();
     })
@@ -148,7 +148,7 @@ addBtn.addEventListener('click', () => {
 // ----------------------------
 function editTodo(todo) {
 	// 入力されたデータを取得
-	const newTitle = validateTitle(prompt("新しいタイトルを入力", todo.title));
+	const newTitle = validateTitle(prompt("Todoを編集", todo.title));
 	// キャンセルが押せれた場合、もしくはから文字だった場合処理を中断
     if (!newTitle) return;
 	// PUTリクエストを送ってTodoデータを更新する

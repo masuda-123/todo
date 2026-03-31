@@ -3,7 +3,7 @@
 body{
 	background-color: #f9f9f9;
 }
-.wrapper {
+.content-wrapper {
     width: 500px;      /* UIコンテナの幅 */
     margin: 0 auto;    /* 横方向中央 */
     text-align: center; 
@@ -15,17 +15,45 @@ ul {
     padding-left: 0;   /* 不要な余白を消す場合 */
 }
 
-.btn_wrapper {
+.btn-wrapper {
     display: flex;          /* 子要素を横並びに */
-    justify-content: flex-end; /* 右端に寄せる */
-    margin: 10px 0;         /* 上下の余白 */
+    justify-content: space-between; /* 右端に寄せる */
+    gap:10px;
 }
 
 ul li {
     display: flex;                 /* 横並びにする */
     justify-content: space-between; /* 左右端に配置 */
     align-items: center;           /* 縦方向中央揃え */
-    padding: 5px 10px;             /* 任意の余白 */
     list-style: none;              /* 点を消す場合 */
     border-bottom: 1px solid #ccc; /* 区切り線 */
+    padding: 10px 5px;
+    gap:10px
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 10px; /* 間隔 */
+  padding: 5px;
+  align-items: center;
+}
+
+#input-title {
+    flex: 1;                  /* 横幅を残り全部使う */
+    height: 36px;             /* 1行分の高さ */
+    line-height: 36px;        /* テキスト中央寄せ */
+    padding: 0 10px;          
+    resize: none;             /* ユーザーによる高さ変更不可 */
+    overflow-y: auto;         /* 文字が多いと縦スクロール */
+    box-sizing: border-box;    
+    white-space: nowrap;       /* 横に長い文字はスクロール（optional） */
+}
+
+.text-wrapper {
+    flex: 1;              /* 残りのスペースを全部使う */
+    word-break: break-word; /* 長い文字列でも折り返す */
+}
+
+#todo-title {
+  flex: 1; /* 残りのスペースを全部使う */
 }

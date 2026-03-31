@@ -14,8 +14,8 @@ public class Todo {
 	@GeneratedValue(strategy = GenerationType.IDENTITY) //主キーのオートインクリメント
 	private Long id;
 	
-	@NotBlank(message = "タイトルは必須です")
-	@Size(max = 100, message = "タイトルは100文字以内で入力してください")
+	@NotBlank(message = "Todoは必須です")
+	@Size(max = 50, message = "Todoは50文字以内で入力してください")
 	private String title;
 	
 	private boolean done;
