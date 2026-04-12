@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import com.example.todo.dto.TodoRequest;
 import com.example.todo.dto.TodoResponse;
 import com.example.todo.entity.Todo;
 import com.example.todo.exception.TodoNotFoundException;
@@ -138,8 +137,7 @@ class TodoServiceTest {
         when(todoRepository.save(any(Todo.class))).thenReturn(mockTodo);
 
         // 実行
-        TodoRequest request = new TodoRequest("更新後");
-        TodoResponse result = todoService.update(1L, request);
+        TodoResponse result = todoService.update(1L, "更新後");
 
         // 検証
         assertEquals("更新後", result.getTitle()); //タイトルが正しいことを確認
@@ -155,12 +153,9 @@ class TodoServiceTest {
     	// findById(999L)が呼ばれたら何も使わないように設定
         when(todoRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // 実行
-        TodoRequest request = new TodoRequest("更新後");
-
         // 実行及び検証
         assertThrows(TodoNotFoundException.class, () -> { // 例外が発生するか確認
-            todoService.update(999L, request);
+            todoService.update(999L, "更新後");
         });
         verify(todoRepository).findById(999L); // Repositoryが呼ばれることを確認
         verify(todoRepository, never()).save(any()); // Repositoryが呼ばれないことを確認

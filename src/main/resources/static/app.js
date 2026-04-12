@@ -151,9 +151,9 @@ function editTodo(todo) {
 	const newTitle = validateTitle(prompt("タスク名の編集", todo.title));
 	// キャンセルが押せれた場合、もしくはから文字だった場合処理を中断
     if (!newTitle) return;
-	// PUTリクエストを送ってTodoデータを更新する
+	// PATCHリクエストを送ってTodoデータを更新する
     fetch(`/todos/${todo.id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newTitle })
     })

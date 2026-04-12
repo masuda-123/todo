@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.todo.dto.TodoRequest;
 import com.example.todo.dto.TodoResponse;
 import com.example.todo.entity.Todo;
 import com.example.todo.exception.TodoNotFoundException;
@@ -19,7 +18,7 @@ public class TodoService {
         this.todoRepository = todoRepository;
     }
     
-    // Entity → DTO 変換（privateメソッド）
+    // API返却用
     private TodoResponse toResponse(Todo todo) {
         return new TodoResponse(
             todo.getId(),
@@ -31,9 +30,9 @@ public class TodoService {
     // 全件取得
     public List<TodoResponse> findAll() {
         return todoRepository.findAll()
-        		.stream()
-                .map(this::toResponse)
-                .toList();
+        	.stream()
+            .map(this::toResponse)
+            .toList();
     }
 
     // 保存
@@ -47,21 +46,18 @@ public class TodoService {
     // 1件取得
     public TodoResponse findById(Long id) {
         Todo todo = todoRepository.findById(id)
-        	.orElseThrow(() -> new TodoNotFoundException(id)); // idが見つからない場合は onElseThrowが実行される
+        	.orElseThrow(() -> new TodoNotFoundException(id));
         return toResponse(todo);
     }
     
     // 更新
-    public TodoResponse update(Long id, TodoRequest request) {
+    public TodoResponse update(Long id, String title) {
 
-        // DBから既存データ取得（なければエラー）
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
 
-        // 値を更新
-        todo.setTitle(request.getTitle());
+        todo.setTitle(title);
 
-        // 保存
         return toResponse(todoRepository.save(todo));
     }
     
@@ -72,7 +68,6 @@ public class TodoService {
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
 
-        // 削除
         todoRepository.delete(todo);
     }
     

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -30,41 +29,41 @@ public class TodoController {
 		this.todoService = todoService;
 	}
 	
-    // Todo一覧取得
+    // タスク一覧取得
     @GetMapping
     public List<TodoResponse> getTodos() {
         return todoService.findAll();
     }
     
-    // Todo一件取得
+    // タスク一件取得
     @GetMapping("/{id}")
-    public TodoResponse getTodo(@PathVariable Long id) { // @PathVariable = URLから動的な値を受け取る
+    public TodoResponse getTodo(@PathVariable Long id) {
         return todoService.findById(id);
     }
     
-    // Todo保存
+    // タスク保存
     @PostMapping
-    public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { // @Valid = Todoオブジェクトのバリデーションを実行
+    public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { 
         return todoService.create(request.getTitle());
     }
     
-    // Todo更新
-    @PutMapping("/{id}")
+    // タスク名更新
+    @PatchMapping("/{id}")
     public TodoResponse updateTodo(
             @PathVariable Long id,
-            @Valid @RequestBody TodoRequest request) { // @RequestBody  = リクエストボディ（JSON）から値を受け取る
+            @Valid @RequestBody TodoRequest request) {
 
-        return todoService.update(id, request);
+        return todoService.update(id, request.getTitle());
     }
     
-    // Todo削除
+    // タスク削除
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTodo(@PathVariable Long id) {
         todoService.delete(id);
     }
     
-    // Todoの完了未完了の切り替え
+    // タスクの完了未完了の切り替え
     @PatchMapping("/{id}/toggle")
     public TodoResponse toggleTodo(@PathVariable Long id) {
         return todoService.toggleStatus(id);
