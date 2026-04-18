@@ -12,7 +12,6 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import com.example.todo.entity.Todo;
 
-// Repository + JPA + テスト用DBだけ起動
 @DataJpaTest
 // RepositoryTestでは、DBの処理が正しいことを確認
 class TodoRepositoryTest {

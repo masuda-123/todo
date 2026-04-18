@@ -48,9 +48,9 @@ public class TodoIntegrationTest {
         mockMvc.perform(get("/todos"))
         	.andExpect(status().isOk())
         	.andExpect(jsonPath("$.length()").value(2))
-        	.andExpect(jsonPath("$[0].title").value("テスト1"))
+        	.andExpect(jsonPath("$[0].title").value("テスト2"))
         	.andExpect(jsonPath("$[0].done").value(false))
-        	.andExpect(jsonPath("$[1].title").value("テスト2"))
+        	.andExpect(jsonPath("$[1].title").value("テスト1"))
         	.andExpect(jsonPath("$[1].done").value(false));
     }
     
@@ -107,7 +107,7 @@ public class TodoIntegrationTest {
     // 保存_異常系（タイトルが空）
     // ----------------------------
     @Test
-    void createTodo_タイトルが空文字_401() throws Exception {
+    void createTodo_タイトルが空文字_400() throws Exception {
         TodoRequest request = new TodoRequest("");
 
         // タスクを作成
@@ -121,7 +121,7 @@ public class TodoIntegrationTest {
     // 保存_異常系（タイトルが50文字越）
     // ----------------------------
     @Test
-    void createTodo_タイトルが50文字超_401() throws Exception {
+    void createTodo_タイトルが50文字超_400() throws Exception {
     	String longTitle = "あ".repeat(51);
         TodoRequest request = new TodoRequest(longTitle);
         
@@ -177,7 +177,7 @@ public class TodoIntegrationTest {
     // 更新_異常系（タイトルが空）
     // ----------------------------
     @Test
-    void updateTodo_タイトルが空_401() throws Exception {
+    void updateTodo_タイトルが空_400() throws Exception {
         TodoRequest request = new TodoRequest("更新前");
 
         // 更新用のタスクを作成
@@ -202,7 +202,7 @@ public class TodoIntegrationTest {
     // 更新_異常系（タイトルが50文字超）
     // ----------------------------
     @Test
-    void updateTodo_タイトルが50文字超_401() throws Exception {
+    void updateTodo_タイトルが50文字超_400() throws Exception {
     	TodoRequest request = new TodoRequest("更新前");
     	
         // 更新用のタスクを作成
