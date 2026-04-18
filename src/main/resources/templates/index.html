@@ -4,6 +4,7 @@
 		<meta charset="UTF-8">
 		<title>Todoアプリ</title>
 		<link rel="stylesheet" th:href="@{/style.css}">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 	</head>
 	<body>
 		<div class="content-wrapper">
@@ -11,7 +12,9 @@
 			
 				<div class="input-wrapper">
 				    <textarea id="input-title" placeholder="タスク名を入力してください" maxlength="50"></textarea>
-				    <button id="add-btn">追加</button>
+				    <button id="add-btn" class="icon-btn" title="追加">
+						<i class="fa-solid fa-plus"></i>
+					</button>
 				</div>
 			
 			    <ul id="todo-list"></ul>
