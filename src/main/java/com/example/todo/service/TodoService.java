@@ -2,6 +2,7 @@ package com.example.todo.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.todo.dto.TodoResponse;
@@ -29,7 +30,8 @@ public class TodoService {
 
     // 全件取得
     public List<TodoResponse> findAll() {
-        return todoRepository.findAll()
+    	// 新しいid順に表示
+        return todoRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
         	.stream()
             .map(this::toResponse)
             .toList();
