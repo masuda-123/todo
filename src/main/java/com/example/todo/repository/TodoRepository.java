@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.todo.entity.Todo;
 
-// JPAを使ってCategories操作を自動生成
+// JPAを使ってTodoデータを操作
 public interface TodoRepository extends JpaRepository<Todo, Long> {
 
 }
