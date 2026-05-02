@@ -16,46 +16,44 @@ ul {
 }
 
 .btn-wrapper {
-    display: flex;          /* 子要素を横並びに */
-    justify-content: space-between; /* 右端に寄せる */
+    display: flex;
+    justify-content: space-between;
     gap:10px;
 }
 
 ul li {
-    display: flex;                 /* 横並びにする */
-    justify-content: space-between; /* 左右端に配置 */
-    align-items: center;           /* 縦方向中央揃え */
-    list-style: none;              /* 点を消す場合 */
-    border-bottom: 1px solid #ccc; /* 区切り線 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    border-bottom: 1px solid #ccc;
     padding: 10px 5px;
     gap:10px
 }
 
 .input-wrapper {
   display: flex;
-  gap: 10px; /* 間隔 */
+  gap: 10px;
   padding: 5px;
   align-items: center;
 }
 
-#input-title {
-    flex: 1;                  /* 横幅を残り全部使う */
-    height: 36px;             /* 1行分の高さ */
-    line-height: 36px;        /* テキスト中央寄せ */
-    padding: 0 10px;          
-    resize: none;             /* ユーザーによる高さ変更不可 */
-    overflow-y: auto;         /* 文字が多いと縦スクロール */
+#input-title, #edit-input {
+    flex: 1;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 10px;
     box-sizing: border-box;    
-    white-space: nowrap;       /* 横に長い文字はスクロール（optional） */
+  
 }
 
 .text-wrapper {
-    flex: 1;              /* 残りのスペースを全部使う */
-    word-break: break-word; /* 長い文字列でも折り返す */
+    flex: 1;
+    word-break: break-word;
 }
 
 #todo-title {
-  flex: 1; /* 残りのスペースを全部使う */
+  flex: 1;
 }
 
 .icon-btn {
@@ -68,7 +66,6 @@ ul li {
   line-height: 1;
 }
 
-/* ホバー時ちょっとだけ反応 */
 .icon-btn:hover {
   opacity: 0.6;
 }
