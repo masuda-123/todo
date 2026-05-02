@@ -4,15 +4,18 @@
 const todoList = document.getElementById('todo-list');
 const addBtn = document.getElementById('add-btn');
 const inputTitle = document.getElementById('input-title');
+const saveBtn = document.getElementById("save-btn")
+const closeBtn = document.querySelector(".close-btn")
+let currentTodo = null;
 
 // ----------------------------
-// チェックボックス作成関数
+// チェックボックス作成
 // ----------------------------
 function createToggleCheckbox(todo) {
     const checkbox = document.createElement('input');
 
     checkbox.type = 'checkbox';
-    checkbox.checked = todo.done; // ← 今の状態を反映
+    checkbox.checked = todo.done;
 
     checkbox.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -23,7 +26,7 @@ function createToggleCheckbox(todo) {
 }
 
 // ----------------------------
-// 削除ボタン作成関数
+// 削除ボタン作成
 // ----------------------------
 function createDeleteBtn(todo) {
     const btn = document.createElement('button');
@@ -35,6 +38,23 @@ function createDeleteBtn(todo) {
     });
     return btn;
 }
+
+function createEditBtn(todo, textWrapper) {
+    const btn = document.createElement('button');
+    btn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+    btn.classList.add('icon-btn', 'edit-btn');
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation(); // ← これ重要（親のクリック防止）
+        editTodo({
+            id: todo.id,
+            title: textWrapper.textContent
+        });
+    });
+
+    return btn;
+}
+
+
 
 // ----------------------------
 // UI部分更新関数
@@ -49,7 +69,7 @@ function updateTodoUI(updatedTodo) {
 
 
 // ----------------------------
-// Todo取得＆描画
+// タスクの取得＆タスク一覧の表示
 // ----------------------------
 function fetchTodos() {
     fetch('/todos')
@@ -73,9 +93,8 @@ function fetchTodos() {
                 const btnWrapper = document.createElement('div');
                 btnWrapper.classList.add('btn-wrapper')
                 li.appendChild(btnWrapper);
+				btnWrapper.appendChild(createEditBtn(todo, textWrapper));
                 btnWrapper.appendChild(createDeleteBtn(todo));
-
-                textWrapper.addEventListener('click', () => editTodo(todo));
                 todoList.appendChild(li);
             });
         })
@@ -83,7 +102,7 @@ function fetchTodos() {
 }
 
 // ----------------------------
-// バリデーション関数
+// バリデーション
 // ----------------------------
 function validateTitle(input) {
 	if (input === null) return null;
@@ -100,7 +119,7 @@ function validateTitle(input) {
 }
 
 // ----------------------------
-// 追加
+// タスクの追加
 // ----------------------------
 addBtn.addEventListener('click', () => {
     const title = validateTitle(inputTitle.value);
@@ -122,12 +141,25 @@ addBtn.addEventListener('click', () => {
 });
 
 // ----------------------------
-// 編集関数
+// 編集画面を開く
 // ----------------------------
-function editTodo(todo) {
-	const newTitle = validateTitle(prompt("タスク名の編集", todo.title));
+function editTodo({id, title}) {
+    const modal = document.getElementById("edit-modal");
+    const input = document.getElementById("edit-input");
+    currentTodo = { id, title };
+    input.value = currentTodo.title;
+    modal.classList.remove("hidden");
+}
+
+// ----------------------------
+// 編集内容を保存
+// ----------------------------
+saveBtn.addEventListener("click", () => {
+    const input = document.getElementById("edit-input");
+    const newTitle = validateTitle(input.value);
     if (!newTitle) return;
-    fetch(`/todos/${todo.id}`, {
+
+    fetch(`/todos/${currentTodo.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newTitle })
@@ -136,12 +168,23 @@ function editTodo(todo) {
         if (!res.ok) return res.json().then(err => { throw err; });
         return res.json();
     })
-    .then(updated => updateTodoUI(updated))
+    .then(updated => {
+        updateTodoUI(updated);
+        closeModal();
+    })
     .catch(err => alert(JSON.stringify(err)));
+});
+
+// ----------------------------
+// 編集画面を閉じる
+// ----------------------------
+closeBtn.addEventListener("click", closeModal);
+function closeModal() {
+    document.getElementById("edit-modal").classList.add("hidden");
 }
 
 // ----------------------------
-// 削除
+// タスクの削除
 // ----------------------------
 function deleteTodo(id) {
     fetch(`/todos/${id}`, { method: 'DELETE' })
@@ -154,7 +197,7 @@ function deleteTodo(id) {
 }
 
 // ----------------------------
-// 完了切替
+// タスクの完了切替
 // ----------------------------
 function toggleTodo(id) {
     fetch(`/todos/${id}/toggle`, { method: 'PATCH' })

@@ -19,7 +19,17 @@
 			
 			    <ul id="todo-list"></ul>
 		</div>
-	
+		
+		<div id="edit-modal" class="modal hidden">
+			<div class="modal-content">
+				<button class="close-btn">&times;</button>
+				<h3>タスク名の編集</h3>
+				<input id="edit-input" type="text" maxlength="50" />
+				<div class="modal-actions">
+					<button id="save-btn">保存する</button>
+				</div>
+			</div>
+		</div>
 	    <script src="app.js"></script>
 	
 	</body>
