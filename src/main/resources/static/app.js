@@ -77,6 +77,12 @@ function fetchTodos() {
 function createCheckbox(todo) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
+    checkbox.classList.add("todo-checkbox");
+	if (bulkMode) {
+	    checkbox.classList.add("bulk");
+	} else {
+	    checkbox.classList.remove("bulk");
+	}
 
     const isBulk = bulkMode !== null;
 
