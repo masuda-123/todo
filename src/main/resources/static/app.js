@@ -2,11 +2,13 @@
 // 要素取得
 // ============================
 const todoList = document.getElementById('todo-list');
+const inputWraperr = document.querySelector(".input-wrapper");
 const addBtn = document.getElementById('add-btn');
 const inputTitle = document.getElementById('input-title');
 
 const menuBtn = document.getElementById("menu-btn");
 const actionMenu = document.getElementById("action-menu");
+
 
 const deleteFooter = document.getElementById("selection-footer-delete-mode");
 const switchFooter = document.getElementById("selection-footer-switch-status-mode");
@@ -253,6 +255,7 @@ function enterBulkMode(mode) {
     selectedIds.clear();
 
     actionMenu?.classList.add("hidden");
+    inputWraperr.classList.add("fade-hidden");
 
     fetchTodos();
     updateFooter();
@@ -288,6 +291,7 @@ footerDeleteBtn?.addEventListener("click", () => {
     selectedIds.forEach(deleteTodo);
     selectedIds.clear();
     bulkMode = null;
+    inputWraperr.classList.remove("fade-hidden");
     fetchTodos();
     updateFooter();
 });
@@ -296,6 +300,7 @@ footerSwitchBtn?.addEventListener("click", () => {
     selectedIds.forEach(toggleTodo);
     selectedIds.clear();
     bulkMode = null;
+    inputWraperr.classList.remove("fade-hidden");
     fetchTodos();
     updateFooter();
 });
@@ -304,6 +309,7 @@ footerCancelBtns.forEach(btn => {
     btn.addEventListener("click", () => {
         bulkMode = null;
         selectedIds.clear();
+        inputWraperr.classList.remove("fade-hidden");
         fetchTodos();
         updateFooter();
     });

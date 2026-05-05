@@ -8,22 +8,24 @@
 	</head>
 	<body>
 		<div class="content-wrapper">
-			<h1>Todo リスト</h1>
+			<div class="header-wrapper">
+				<h2>Todo リスト</h2>
+				<div id="menu-wrapper" class="menu-wrapper">
+					<button id="menu-btn" class="icon-btn" title="メニュー">
+						<i class="fa-solid fa-bars"></i>
+					</button>
+					<div id="action-menu" class="action-menu hidden">
+						<button id="bulk-switch-status">一括ステータス変更</button>
+						<button id="bulk-delete">一括削除</button>
+					</div>
+				</div>
+			</div>
 			
 			<div class="input-wrapper">
     			<input type="text" id="input-title" placeholder="タスク名を入力してください" maxlength="50" />
     			<button id="add-btn" class="icon-btn" title="追加">
 					<i class="fa-solid fa-plus"></i>
 				</button>
-				<div id="menu-wrapper" class="menu-wrapper">
-					<button id="menu-btn" class="icon-btn" title="メニュー">
-						<i class="fa-solid fa-bars"></i>
-					</button>
-				    <div id="action-menu" class="action-menu hidden">
-				        <button id="bulk-switch-status">一括ステータス変更</button>
-				        <button id="bulk-delete">一括削除</button>
-				    </div>
-				</div>
 			</div>
 			<ul id="todo-list"></ul>
 			<div id="selection-footer-delete-mode" class="selection-footer-delete-mode hidden">

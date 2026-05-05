@@ -6,7 +6,6 @@ body{
 .content-wrapper {
     width: 600px; 
     margin: 0 auto;
-    text-align: center; 
 }
 
 ul {
@@ -32,10 +31,12 @@ ul li {
 }
 
 .input-wrapper {
+	transition: all 0.25s ease;
 	display: flex;
 	gap: 10px;
 	padding: 5px;
 	align-items: center;
+	height: 60px;
 }
 
 #input-title, #edit-input {
@@ -85,10 +86,6 @@ input[type="checkbox"] {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.hidden {
-  display: none;
 }
 
 .modal-content {
@@ -183,10 +180,6 @@ input[type="checkbox"] {
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.hidden {
-  display: none;
-}
-
 .todo-checkbox {
     appearance: none;
     -webkit-appearance: none;
@@ -239,4 +232,37 @@ input[type="checkbox"] {
     border-radius: 50%;
     border: none;
     transform: none;
+}
+
+.header-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 5px;
+    height: 30px;
+}
+
+.header-wrapper h2 {
+    margin: 0;
+}
+
+.menu-wrapper {
+    position: absolute;
+    right: 5px;
+}
+
+.fa-bars, .fa-plus {
+    font-size: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.fade-hidden {
+    opacity: 0;
+    transform: translateX(-10px);
+    pointer-events: none;
+    max-height: 0px;
 }
