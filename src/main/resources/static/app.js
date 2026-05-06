@@ -52,11 +52,14 @@ function fetchTodos() {
 
                 const btnWrapper = document.createElement("div");
                 btnWrapper.classList.add("btn-wrapper");
-
-                if (!bulkMode) {
-                    btnWrapper.appendChild(createEditBtn(todo, text));
-                    btnWrapper.appendChild(createDeleteBtn(todo));
-                }
+                
+                text.addEventListener("click", (e) => {
+						e.stopPropagation();
+						editTodo({
+							id: todo.id,
+							title: text.textContent
+					});
+				});
 
                 if (bulkMode) {
                     li.appendChild(text);
@@ -112,38 +115,6 @@ function createCheckbox(todo) {
     }
 
     return checkbox;
-}
-
-// ============================
-// 各タスクの削除ボタン、編集ボタン
-// ============================
-function createDeleteBtn(todo) {
-    const btn = document.createElement("button");
-    btn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-    btn.classList.add("icon-btn", "delete-btn");
-
-    btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        deleteTodo(todo.id);
-    });
-
-    return btn;
-}
-
-function createEditBtn(todo, textWrapper) {
-    const btn = document.createElement("button");
-    btn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-    btn.classList.add("icon-btn", "edit-btn");
-
-    btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        editTodo({
-            id: todo.id,
-            title: textWrapper.textContent
-        });
-    });
-
-    return btn;
 }
 
 // ============================
