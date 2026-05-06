@@ -52,14 +52,10 @@ function fetchTodos() {
 
                 const btnWrapper = document.createElement("div");
                 btnWrapper.classList.add("btn-wrapper");
-                
-                text.addEventListener("click", (e) => {
-						e.stopPropagation();
-						editTodo({
-							id: todo.id,
-							title: text.textContent
-					});
-				});
+
+                if (!bulkMode) {
+                    btnWrapper.appendChild(createEditBtn(todo, text));
+                }
 
                 if (bulkMode) {
                     li.appendChild(text);
@@ -115,6 +111,26 @@ function createCheckbox(todo) {
     }
 
     return checkbox;
+}
+
+// ============================
+// 各タスクの編集ボタン
+// ============================
+
+function createEditBtn(todo, textWrapper) {
+    const btn = document.createElement("button");
+    btn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+    btn.classList.add("icon-btn", "edit-btn");
+
+    btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        editTodo({
+            id: todo.id,
+            title: textWrapper.textContent
+        });
+    });
+
+    return btn;
 }
 
 // ============================

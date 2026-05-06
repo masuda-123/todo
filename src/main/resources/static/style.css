@@ -14,6 +14,12 @@ ul {
     padding-left: 0;
 }
 
+.btn-wrapper {
+    display: flex;
+    justify-content: space-between;
+    gap:10px;
+}
+
 ul li {
     display: flex;
     justify-content: space-between;
@@ -45,12 +51,6 @@ ul li {
 .text-wrapper {
     flex: 1;
     word-break: break-word;
-}
-
-.text-wrapper:hover {
-    flex: 1;
-    word-break: break-word;
-    opacity: 0.6;
 }
 
 #todo-title {
