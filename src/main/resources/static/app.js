@@ -22,6 +22,7 @@ const saveBtn = document.getElementById("save-btn");
 const closeBtn = document.querySelector(".close-btn");
 const editModal = document.getElementById("edit-modal");
 const editInput = document.getElementById("edit-input");
+let sortable = null;
 
 // ============================
 // モード管理用変数
@@ -68,6 +69,7 @@ function fetchTodos() {
 
                 todoList.appendChild(li);
             });
+            initSortable();
         })
         .catch(err => console.error(err));
 }
@@ -301,6 +303,46 @@ footerCancelBtns.forEach(btn => {
         updateFooter();
     });
 });
+
+// ============================
+// 並び替え
+// ============================
+function initSortable() {
+
+    if (bulkMode) {
+
+        if (sortable) {
+            sortable.destroy();
+            sortable = null;
+        }
+
+        return;
+    }
+
+    if (sortable) {
+        sortable.destroy();
+    }
+
+    sortable = new Sortable(todoList, {
+        animation: 150,
+
+        ghostClass: "sortable-ghost",
+        chosenClass: "sortable-chosen",
+        onEnd: () => {
+		    const orderedIds = [...todoList.children].map(li =>
+		        Number(li.id.replace("todo-", ""))
+		    );
+		
+		    fetch("/todos/reorder", {
+		        method: "PATCH",
+		        headers: {
+		            "Content-Type": "application/json"
+		        },
+		        body: JSON.stringify(orderedIds)
+		    });
+		}
+    });
+}
 
 // ============================
 // 初期表示

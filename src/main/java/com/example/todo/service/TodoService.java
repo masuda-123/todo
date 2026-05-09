@@ -2,8 +2,8 @@ package com.example.todo.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.todo.dto.TodoResponse;
 import com.example.todo.entity.Todo;
@@ -30,19 +30,30 @@ public class TodoService {
 
     // 全件取得
     public List<TodoResponse> findAll() {
-    	// 新しいid順に表示
-        return todoRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
+        return todoRepository.findAllByOrderByDisplayOrderAsc()
         	.stream()
             .map(this::toResponse)
             .toList();
     }
 
     // 保存
+    @Transactional
     public TodoResponse create(String title) {
-        Todo todo = new Todo();
-        todo.setTitle(title);
-        todo.setDone(false);
-        return toResponse(todoRepository.save(todo));
+        List<Todo> todos = todoRepository.findAllByOrderByDisplayOrderAsc();
+
+        // 既存Todoの順番を1つ後ろにする
+        for (Todo todo : todos) {
+            todo.setDisplayOrder(todo.getDisplayOrder() + 1);
+        }
+        
+        // 新規Todoを保存
+        Todo newTodo = new Todo();
+        newTodo.setTitle(title);
+        newTodo.setDone(false);
+        newTodo.setDisplayOrder(0);
+        todoRepository.save(newTodo);
+
+        return toResponse(newTodo);
     }
     
     // 1件取得
@@ -80,6 +91,19 @@ public class TodoService {
         todo.setDone(!todo.isDone()); // true ⇄ false 反転
         return toResponse(todoRepository.save(todo));
 
+    }
+    
+    // 並び替え
+    @Transactional
+    public void updateOrder(List<Long> orderedIds) {
+
+        for (int i = 0; i < orderedIds.size(); i++) {
+
+            Todo todo = todoRepository.findById(orderedIds.get(i))
+                    .orElseThrow();
+
+            todo.setDisplayOrder(i);
+        }
     }
 }
 

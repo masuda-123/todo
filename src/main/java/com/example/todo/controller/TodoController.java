@@ -68,5 +68,11 @@ public class TodoController {
     public TodoResponse toggleTodo(@PathVariable Long id) {
         return todoService.toggleStatus(id);
     }
-
+    
+    // タスクの並び替え
+    @PatchMapping("/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reorderTodos(@RequestBody List<Long> orderedIds) {
+        todoService.updateOrder(orderedIds);
+    }
 }
