@@ -24,7 +24,8 @@ public class TodoService {
         return new TodoResponse(
             todo.getId(),
             todo.getTitle(),
-            todo.isDone()
+            todo.isDone(),
+            todo.getMemo()
         );
     }
 
@@ -64,12 +65,13 @@ public class TodoService {
     }
     
     // 更新
-    public TodoResponse update(Long id, String title) {
+    public TodoResponse update(Long id, String title, String memo) {
 
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
 
         todo.setTitle(title);
+        todo.setMemo(memo);
 
         return toResponse(todoRepository.save(todo));
     }

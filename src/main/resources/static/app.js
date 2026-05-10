@@ -22,6 +22,7 @@ const saveBtn = document.getElementById("save-btn");
 const closeBtn = document.querySelector(".close-btn");
 const editModal = document.getElementById("edit-modal");
 const editInput = document.getElementById("edit-input");
+const editMemo = document.getElementById("edit-memo");
 let sortable = null;
 
 // ============================
@@ -48,8 +49,22 @@ function fetchTodos() {
 
                 const text = document.createElement("div");
                 text.classList.add("text-wrapper");
-                text.textContent = todo.title;
-                text.style.textDecoration = todo.done ? "line-through" : "none";
+                const title = document.createElement("div");
+				title.classList.add("todo-title");
+				title.textContent = todo.title;
+				
+				title.style.textDecoration =
+				    todo.done ? "line-through" : "none";
+				
+				text.appendChild(title);
+				
+				if (todo.memo) {
+				    const memo = document.createElement("div");
+				    memo.classList.add("todo-memo");
+				    memo.textContent = todo.memo;
+				
+				    text.appendChild(memo);
+				}
 
                 const btnWrapper = document.createElement("div");
                 btnWrapper.classList.add("btn-wrapper");
@@ -126,10 +141,7 @@ function createEditBtn(todo, textWrapper) {
 
     btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        editTodo({
-            id: todo.id,
-            title: textWrapper.textContent
-        });
+		editTodo(todo);
     });
 
     return btn;
@@ -167,6 +179,7 @@ function deleteTodo(id) {
 function editTodo(todo) {
     currentTodo = todo;
     editInput.value = todo.title;
+    editMemo.value = todo.memo;
     editModal.classList.remove("hidden");
 }
 
@@ -183,31 +196,20 @@ closeBtn?.addEventListener("click", () => {
 // ============================
 saveBtn?.addEventListener("click", () => {
     const title = editInput.value.trim();
+    const memo = editMemo.value.trim();
     if (!title) return;
 
     fetch(`/todos/${currentTodo.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title })
+        body: JSON.stringify({ title, memo})
     })
     .then(res => res.json())
     .then(updated => {
-        updateTodoUI(updated);
+        fetchTodos();
         editModal.classList.add("hidden");
     });
 });
-
-// ============================
-// タスク名変更後のUI部分更新
-// ============================
-function updateTodoUI(todo) {
-    const li = document.getElementById(`todo-${todo.id}`);
-    if (!li) return;
-
-    const text = li.querySelector(".text-wrapper");
-    text.textContent = todo.title;
-    text.style.textDecoration = todo.done ? "line-through" : "none";
-}
 
 // ============================
 // ステータス切替

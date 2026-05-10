@@ -43,8 +43,17 @@
 		<div id="edit-modal" class="modal hidden">
 			<div class="modal-content">
 				<button class="close-btn">&times;</button>
-				<h3>タスク名の編集</h3>
-				<input id="edit-input" type="text" maxlength="50" />
+				<h3>タスクの編集</h3>
+				<div class="task-name-row">
+					<label>タスク名</label>
+					<input id="edit-input" type="text" maxlength="50" />
+				</div>
+				<div class="memo-row">
+					<label>メモ</label>
+				    <textarea id="edit-memo"
+				              maxlength="1000"
+				              placeholder="メモを入力"></textarea>
+				 </div>
 				<div class="modal-actions">
 					<button id="save-btn">保存する</button>
 				</div>

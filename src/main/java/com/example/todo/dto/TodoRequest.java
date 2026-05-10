@@ -9,6 +9,8 @@ public class TodoRequest {
     @Size(max = 50, message = "タスク名は50文字以内にしてください")
     private String title;
     
+    private String memo;
+    
     // テスト用のコンストラクタ
     public TodoRequest(String title) {
         this.title = title;
@@ -20,5 +22,13 @@ public class TodoRequest {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+    
+    public String getMemo() {
+    	return memo;
+    }
+    
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 }

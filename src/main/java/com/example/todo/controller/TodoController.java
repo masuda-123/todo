@@ -47,13 +47,13 @@ public class TodoController {
         return todoService.create(request.getTitle());
     }
     
-    // タスク名更新
+    // タスク名、メモ更新
     @PatchMapping("/{id}")
     public TodoResponse updateTodo(
             @PathVariable Long id,
             @Valid @RequestBody TodoRequest request) {
 
-        return todoService.update(id, request.getTitle());
+        return todoService.update(id, request.getTitle(), request.getMemo());
     }
     
     // タスク削除

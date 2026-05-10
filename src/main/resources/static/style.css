@@ -48,6 +48,15 @@ ul li {
     box-sizing: border-box;
 }
 
+#edit-memo{
+	font-size: 13px;
+    flex: 1;
+    height: 80px;
+    line-height: 36px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
 .text-wrapper {
     flex: 1;
     word-break: break-word;
@@ -94,7 +103,7 @@ input[type="checkbox"] {
 	background: white;
 	padding: 20px;
 	border-radius: 8px;
-	width: 500px;
+	width: 550px;
 }
 
 .close-btn {
@@ -105,10 +114,6 @@ input[type="checkbox"] {
   border: none;
   font-size: 20px;
   cursor: pointer;
-}
-
-#edit-input{
-	width: 100%;
 }
 
 .modal-actions {
@@ -277,4 +282,32 @@ input[type="checkbox"] {
 
 #todo-list li {
     cursor: grab;
+}
+
+.task-name-row, .memo-row{
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 10px;
+	gap: 10px;
+	font-size: 13px;
+}
+
+.task-name-row label, .memo-row label{
+	width: 10%;
+	margin: auto 0;
+	text-align: right;
+}
+
+.task-name-row input, .memo-row input{
+	width: 90%;
+}
+
+.todo-memo {
+    font-size: 13px;
+
+    color: #777;
+
+    line-height: 1.4;
+
+    white-space: pre-wrap;
 }

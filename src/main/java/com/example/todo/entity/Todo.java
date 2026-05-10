@@ -11,8 +11,8 @@ import jakarta.validation.constraints.Size;
 @Entity
 public class Todo {
 	
-	@Id //主キー
-	@GeneratedValue(strategy = GenerationType.IDENTITY) //主キーのオートインクリメント
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@NotBlank(message = "タスク名は必須です")
@@ -23,6 +23,9 @@ public class Todo {
 	
 	@Column(name = "display_order")
 	private Integer displayOrder;
+	
+	@Column(columnDefinition = "TEXT")
+	private String memo;
 	
 	public Todo() {}
 	
@@ -38,4 +41,8 @@ public class Todo {
     public Integer getDisplayOrder() { return displayOrder; }
 
     public void setDisplayOrder(Integer displayOrder) { this.displayOrder = displayOrder; }
+    
+    public String getMemo() { return memo; }
+    public void setMemo(String memo) { this.memo = memo; }
+
 }
