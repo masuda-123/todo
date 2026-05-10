@@ -167,7 +167,6 @@ input[type="checkbox"] {
   position: fixed;
   bottom: 20px;
   left: 50%;
-  transform: translateX(-50%);
   display: flex;
   gap: 10px;
   padding: 10px;
@@ -181,7 +180,6 @@ input[type="checkbox"] {
   position: fixed;
   bottom: 20px;
   left: 50%;
-  transform: translateX(-50%);
   display: flex;
   gap: 10px;
   padding: 10px;
@@ -402,4 +400,11 @@ input[type="checkbox"] {
 
 body {
     margin: 0;
+}
+
+#empty-message {
+    text-align: center;
+    margin-top: 80px;
+    color: #999;
+    font-size: 18px;
 }

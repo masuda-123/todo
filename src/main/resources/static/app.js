@@ -2,7 +2,7 @@
 // 要素取得
 // ============================
 const todoList = document.getElementById('todo-list');
-const inputWraperr = document.querySelector(".input-wrapper");
+const inputWrapper = document.querySelector(".input-wrapper");
 const addBtn = document.getElementById('add-btn');
 const inputTitle = document.getElementById('input-title');
 
@@ -28,8 +28,12 @@ const listNameInput = document.getElementById("list-name-input");
 const listColorInput = document.getElementById("list-color-input");
 const saveListBtn = document.getElementById("save-list-btn");
 const listCloseBtn = document.querySelector(".list-close-btn");
+const emptyMessage = document.getElementById("empty-message");
 let sortable = null;
 let currentListId = null;
+
+const savedListId = localStorage.getItem("currentListId");
+currentListId = savedListId ? Number(savedListId) : null;
 
 
 // ============================
@@ -263,7 +267,7 @@ function enterBulkMode(mode) {
     selectedIds.clear();
 
     actionMenu?.classList.add("hidden");
-    inputWraperr.classList.add("fade-hidden");
+    inputWrapper.classList.add("fade-hidden");
 
     fetchTodos();
     updateFooter();
@@ -299,7 +303,7 @@ footerDeleteBtn?.addEventListener("click", () => {
     selectedIds.forEach(deleteTodo);
     selectedIds.clear();
     bulkMode = null;
-    inputWraperr.classList.remove("fade-hidden");
+    inputWrapper.classList.remove("fade-hidden");
     fetchTodos();
     updateFooter();
 });
@@ -308,7 +312,7 @@ footerSwitchBtn?.addEventListener("click", () => {
     selectedIds.forEach(toggleTodo);
     selectedIds.clear();
     bulkMode = null;
-    inputWraperr.classList.remove("fade-hidden");
+    inputWrapper.classList.remove("fade-hidden");
     fetchTodos();
     updateFooter();
 });
@@ -317,11 +321,27 @@ footerCancelBtns.forEach(btn => {
     btn.addEventListener("click", () => {
         bulkMode = null;
         selectedIds.clear();
-        inputWraperr.classList.remove("fade-hidden");
+        inputWrapper.classList.remove("fade-hidden");
         fetchTodos();
         updateFooter();
     });
 });
+
+// ============================
+// リストがない場合にUIを更新
+// ============================
+function updateUI(hasLists) {
+
+    if (hasLists) {
+        inputWrapper.style.display = "flex";
+        menuBtn.style.display = "block";
+        emptyMessage.classList.add("hidden");
+    } else {
+        inputWrapper.style.display = "none";
+        menuBtn.style.display = "none";
+        emptyMessage.classList.remove("hidden");
+    }
+}
 
 // ============================
 // 並び替え
@@ -371,6 +391,8 @@ function fetchLists() {
     fetch("/lists")
         .then(res => res.json())
         .then(data => {
+			
+			updateUI(data.length > 0);
 
             const sidebar =
                 document.getElementById("list-sidebar");
@@ -378,8 +400,7 @@ function fetchLists() {
             sidebar.innerHTML = "";
 
             data.forEach(list => {
-
-                const li = document.createElement("li");
+				const li = document.createElement("li");
 
                 li.innerHTML = `
 				    <span style="display:inline-block;
@@ -390,37 +411,38 @@ function fetchLists() {
 				                 margin-right:6px;"></span>
 				    ${list.name}
 				`;
+				
+				sidebar.appendChild(li);
 
-                if (list.id === currentListId) {
-                    li.classList.add("active");
-                }
+				if (Number(list.id) === currentListId){
+				
+				    li.classList.add("active");
+				
+				    document.getElementById("current-list-title").textContent = list.name;
+				
+				    document.getElementById("current-list-title").style.color = list.color;
+				    
+				    fetchTodos();
+				}
                 
-			li.addEventListener("click", () => {
+                li.addEventListener("click", () => {
 			
-			    currentListId = list.id;
-			    
-			    console.log(currentListId);
+			    	currentListId = Number(list.id);
+			    	
+			    	localStorage.setItem("currentListId", currentListId);
 			
-			    document.getElementById("current-list-title").textContent = list.name;
-			    document.getElementById("current-list-title").style.color = list.color;
-			    document.querySelectorAll("#list-sidebar li").forEach(item => item.classList.remove("active"));
-			
-			    li.classList.add("active");
-			
-			    fetchTodos();
-			});
-
-                sidebar.appendChild(li);
-            });
-
-			if (!currentListId && data.length > 0) {
-			
-			    currentListId = data[0].id;
-			
-			    document.getElementById("current-list-title")
-			        .textContent = data[0].name;
-			
-			    fetchTodos();
+			    	document.getElementById("current-list-title").textContent = list.name;
+			    	document.getElementById("current-list-title").style.color = list.color;
+			    	document.querySelectorAll("#list-sidebar li").forEach(item => item.classList.remove("active"));
+			    	li.classList.add("active");
+			    	fetchTodos();
+			    });
+        	});
+        	if (currentListId == null && data.length > 0) {
+				currentListId = Number(data[0].id);
+				localStorage.setItem("currentListId", currentListId);
+				document.getElementById("current-list-title").textContent = data[0].name;
+				fetchTodos();
 			}
         });
 }
