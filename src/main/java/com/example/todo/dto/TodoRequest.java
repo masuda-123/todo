@@ -11,6 +11,8 @@ public class TodoRequest {
     
     private String memo;
     
+    private Long listId;
+    
     // テスト用のコンストラクタ
     public TodoRequest(String title) {
         this.title = title;
@@ -30,5 +32,13 @@ public class TodoRequest {
     
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+    
+    public Long getListId() {
+        return listId;
+    }
+
+    public void setListId(Long listId) {
+        this.listId = listId;
     }
 }

@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -27,6 +29,10 @@ public class Todo {
 	@Column(columnDefinition = "TEXT")
 	private String memo;
 	
+	@ManyToOne
+	@JoinColumn(name = "list_id")
+	private TodoList list;
+	
 	public Todo() {}
 	
     public Long getId() { return id; }
@@ -44,5 +50,8 @@ public class Todo {
     
     public String getMemo() { return memo; }
     public void setMemo(String memo) { this.memo = memo; }
+    
+    public TodoList getList() { return list; }
+    public void setList(TodoList list) { this.list = list; }
 
 }

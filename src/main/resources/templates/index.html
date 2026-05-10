@@ -8,41 +8,56 @@
 	</head>
 	<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 	<body>
-		<div class="content-wrapper">
-			<div class="header-wrapper">
-				<h2>Todo リスト</h2>
-				<div id="menu-wrapper" class="menu-wrapper">
-					<button id="menu-btn" class="icon-btn" title="メニュー">
-						<i class="fa-solid fa-bars"></i>
-					</button>
-					<div id="action-menu" class="action-menu hidden">
-						<button id="bulk-switch-status">一括ステータス変更</button>
-						<button id="bulk-delete">削除</button>
+		<div class="app-layout">
+	        <aside class="sidebar">
+	            <div class="sidebar-header">
+	                <h2>リスト</h2>
+	            </div>
+	            <ul id="list-sidebar">
+	            </ul>
+	            <button id="add-list-btn">
+	                ＋ 新規リスト
+	            </button>
+	        </aside>
+	        <main class="main-content">
+				<div class="content-wrapper">
+					<div class="header-wrapper">
+						<h2 id="current-list-title">
+							Todo リスト
+						</h2>
+						<div id="menu-wrapper" class="menu-wrapper">
+							<button id="menu-btn" class="icon-btn" title="メニュー">
+								<i class="fa-solid fa-bars"></i>
+							</button>
+							<div id="action-menu" class="action-menu hidden">
+								<button id="bulk-switch-status">一括ステータス変更</button>
+								<button id="bulk-delete">削除</button>
+							</div>
+						</div>
+					</div>
+					
+					<div class="input-wrapper">
+		    			<input type="text" id="input-title" placeholder="タスク名を入力してください" maxlength="50" />
+		    			<button id="add-btn" class="icon-btn" title="追加">
+							<i class="fa-solid fa-plus"></i>
+						</button>
+					</div>
+					<ul id="todo-list"></ul>
+					<div id="selection-footer-delete-mode" class="selection-footer-delete-mode hidden">
+					    <button id="footer-delete">削除する</button>
+					    <button id="footer-cancel">キャンセル</button>
+					</div>
+					
+					<div id="selection-footer-switch-status-mode" class="selection-footer-switch-status-mode hidden">
+					    <button id="footer-switch-status">ステータスを変更する</button>
+					    <button id="footer-cancel">キャンセル</button>
 					</div>
 				</div>
-			</div>
-			
-			<div class="input-wrapper">
-    			<input type="text" id="input-title" placeholder="タスク名を入力してください" maxlength="50" />
-    			<button id="add-btn" class="icon-btn" title="追加">
-					<i class="fa-solid fa-plus"></i>
-				</button>
-			</div>
-			<ul id="todo-list"></ul>
-			<div id="selection-footer-delete-mode" class="selection-footer-delete-mode hidden">
-			    <button id="footer-delete">削除する</button>
-			    <button id="footer-cancel">キャンセル</button>
-			</div>
-			
-			<div id="selection-footer-switch-status-mode" class="selection-footer-switch-status-mode hidden">
-			    <button id="footer-switch-status">ステータスを変更する</button>
-			    <button id="footer-cancel">キャンセル</button>
-			</div>
+			</main>
 		</div>
-		
 		<div id="edit-modal" class="modal hidden">
 			<div class="modal-content">
-				<button class="close-btn">&times;</button>
+				<button class="edit-close-btn">&times;</button>
 				<h3>タスクの編集</h3>
 				<div class="task-name-row">
 					<label>タスク名</label>
@@ -50,16 +65,30 @@
 				</div>
 				<div class="memo-row">
 					<label>メモ</label>
-				    <textarea id="edit-memo"
-				              maxlength="1000"
-				              placeholder="メモを入力"></textarea>
-				 </div>
+					<textarea id="edit-memo" maxlength="1000" placeholder="メモを入力"></textarea>
+				</div>
 				<div class="modal-actions">
 					<button id="save-btn">保存する</button>
 				</div>
 			</div>
 		</div>
-	
+		<div id="list-modal" class="modal hidden">
+		    <div class="modal-content">
+				<button class="list-close-btn">&times;</button>
+		        <h3>新規リスト作成</h3>
+				<div class="list-name-row">
+					<label>リスト名</label>
+		        	<input id="list-name-input" placeholder="リスト名を入力" />
+		        </div>
+		        <div class="color-row">
+		            <label>色</label>
+		            <input type="color" id="list-color-input" value="#4f46e5" />
+		        </div>
+		        <div class="modal-actions">
+			        <button id="save-list-btn">作成する</button>
+			    </div>
+		    </div>
+		   </div>
 	</body>
 	<script src="app.js"></script>
 </html>

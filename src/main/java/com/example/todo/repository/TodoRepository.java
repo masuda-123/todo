@@ -9,4 +9,5 @@ import com.example.todo.entity.Todo;
 // JPAを使ってTodoデータを操作
 public interface TodoRepository extends JpaRepository<Todo, Long> {
 	List<Todo> findAllByOrderByDisplayOrderAsc();
+	List<Todo> findByListIdOrderByDisplayOrderAsc(Long listId);
 }

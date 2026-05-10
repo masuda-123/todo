@@ -19,11 +19,18 @@ const footerSwitchBtn = document.getElementById("footer-switch-status");
 const footerCancelBtns = document.querySelectorAll("#footer-cancel");
 
 const saveBtn = document.getElementById("save-btn");
-const closeBtn = document.querySelector(".close-btn");
+const editCloseBtn = document.querySelector(".edit-close-btn");
 const editModal = document.getElementById("edit-modal");
 const editInput = document.getElementById("edit-input");
 const editMemo = document.getElementById("edit-memo");
+const listModal = document.getElementById("list-modal");
+const listNameInput = document.getElementById("list-name-input");
+const listColorInput = document.getElementById("list-color-input");
+const saveListBtn = document.getElementById("save-list-btn");
+const listCloseBtn = document.querySelector(".list-close-btn");
 let sortable = null;
+let currentListId = null;
+
 
 // ============================
 // モード管理用変数
@@ -36,7 +43,8 @@ let currentTodo = null;
 // 一覧取得
 // ============================
 function fetchTodos() {
-    fetch("/todos")
+	if (!currentListId) return;
+    fetch(`/todos?listId=${currentListId}`)
         .then(res => res.json())
         .then(data => {
             todoList.innerHTML = "";
@@ -44,7 +52,7 @@ function fetchTodos() {
             data.forEach(todo => {
                 const li = document.createElement("li");
                 li.id = `todo-${todo.id}`;
-
+                li.style.setProperty("--list-color", todo.listColor);
                 const checkbox = createCheckbox(todo);
 
                 const text = document.createElement("div");
@@ -62,6 +70,7 @@ function fetchTodos() {
 				    const memo = document.createElement("div");
 				    memo.classList.add("todo-memo");
 				    memo.textContent = todo.memo;
+				    memo.style.textDecoration = todo.done ? "line-through" : "none";
 				
 				    text.appendChild(memo);
 				}
@@ -154,10 +163,18 @@ addBtn.addEventListener("click", () => {
     const title = inputTitle.value.trim();
     if (!title) return;
 
+    if (currentListId == null) {
+        alert("リストを選択してください");
+        return;
+    }
+
     fetch("/todos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title })
+        body: JSON.stringify({
+            title,
+            listId: currentListId
+        })
     }).then(() => {
         inputTitle.value = "";
         fetchTodos();
@@ -187,7 +204,7 @@ function editTodo(todo) {
 // ============================
 // 編集モーダル閉じる
 // ============================
-closeBtn?.addEventListener("click", () => {
+editCloseBtn?.addEventListener("click", () => {
     editModal.classList.add("hidden");
 });
 
@@ -347,6 +364,109 @@ function initSortable() {
 }
 
 // ============================
+// リストの取得
+// ============================
+function fetchLists() {
+
+    fetch("/lists")
+        .then(res => res.json())
+        .then(data => {
+
+            const sidebar =
+                document.getElementById("list-sidebar");
+
+            sidebar.innerHTML = "";
+
+            data.forEach(list => {
+
+                const li = document.createElement("li");
+
+                li.innerHTML = `
+				    <span style="display:inline-block;
+				                 width:10px;
+				                 height:10px;
+				                 background:${list.color};
+				                 border-radius:50%;
+				                 margin-right:6px;"></span>
+				    ${list.name}
+				`;
+
+                if (list.id === currentListId) {
+                    li.classList.add("active");
+                }
+                
+			li.addEventListener("click", () => {
+			
+			    currentListId = list.id;
+			    
+			    console.log(currentListId);
+			
+			    document.getElementById("current-list-title").textContent = list.name;
+			    document.getElementById("current-list-title").style.color = list.color;
+			    document.querySelectorAll("#list-sidebar li").forEach(item => item.classList.remove("active"));
+			
+			    li.classList.add("active");
+			
+			    fetchTodos();
+			});
+
+                sidebar.appendChild(li);
+            });
+
+			if (!currentListId && data.length > 0) {
+			
+			    currentListId = data[0].id;
+			
+			    document.getElementById("current-list-title")
+			        .textContent = data[0].name;
+			
+			    fetchTodos();
+			}
+        });
+}
+
+
+// ============================
+// リスト作成モーダルを開く
+// ============================
+document.getElementById("add-list-btn").addEventListener("click", () => {
+    listModal.classList.remove("hidden");
+});
+
+// ============================
+// リスト作成モーダルを閉じる
+// ============================
+listCloseBtn?.addEventListener("click", () => {
+    listModal.classList.add("hidden");
+});
+
+
+// ============================
+// リストの追加
+// ============================
+saveListBtn.addEventListener("click", () => {
+
+    const name = listNameInput.value.trim();
+    const color = listColorInput.value;
+
+    if (!name) return;
+
+    fetch("/lists", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, color })
+    }).then(() => {
+        listNameInput.value = "";
+        listModal.classList.add("hidden");
+        fetchLists();
+    });
+});
+
+
+
+// ============================
 // 初期表示
 // ============================
-fetchTodos();
+fetchLists();

@@ -7,16 +7,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.todo.dto.TodoResponse;
 import com.example.todo.entity.Todo;
+import com.example.todo.entity.TodoList;
 import com.example.todo.exception.TodoNotFoundException;
+import com.example.todo.repository.TodoListRepository;
 import com.example.todo.repository.TodoRepository;
 
 @Service
 public class TodoService {
 
     private final TodoRepository todoRepository;
+    private final TodoListRepository todoListRepository;
 
-    public TodoService(TodoRepository todoRepository) {
+    public TodoService(TodoRepository todoRepository, TodoListRepository todoListRepository) {
         this.todoRepository = todoRepository;
+        this.todoListRepository = todoListRepository;
     }
     
     // API返却用
@@ -25,7 +29,8 @@ public class TodoService {
             todo.getId(),
             todo.getTitle(),
             todo.isDone(),
-            todo.getMemo()
+            todo.getMemo(),
+            todo.getList().getColor()
         );
     }
 
@@ -39,8 +44,9 @@ public class TodoService {
 
     // 保存
     @Transactional
-    public TodoResponse create(String title) {
+    public TodoResponse create(String title, Long listId) {
         List<Todo> todos = todoRepository.findAllByOrderByDisplayOrderAsc();
+        TodoList list = todoListRepository.findById(listId).orElseThrow();
 
         // 既存Todoの順番を1つ後ろにする
         for (Todo todo : todos) {
@@ -52,6 +58,7 @@ public class TodoService {
         newTodo.setTitle(title);
         newTodo.setDone(false);
         newTodo.setDisplayOrder(0);
+        newTodo.setList(list);
         todoRepository.save(newTodo);
 
         return toResponse(newTodo);
@@ -88,6 +95,7 @@ public class TodoService {
     
     // 完了、未完了の切り替え
     public TodoResponse toggleStatus(Long id) {
+    	
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
         todo.setDone(!todo.isDone()); // true ⇄ false 反転
@@ -98,7 +106,7 @@ public class TodoService {
     // 並び替え
     @Transactional
     public void updateOrder(List<Long> orderedIds) {
-
+    	
         for (int i = 0; i < orderedIds.size(); i++) {
 
             Todo todo = todoRepository.findById(orderedIds.get(i))
@@ -106,6 +114,16 @@ public class TodoService {
 
             todo.setDisplayOrder(i);
         }
+    }
+    
+    // リストから取得
+    public List<TodoResponse> findByListId(Long listId) {
+    	
+        return todoRepository
+                .findByListIdOrderByDisplayOrderAsc(listId)
+                .stream()
+                .map(TodoResponse::from)
+                .toList();
     }
 }
 

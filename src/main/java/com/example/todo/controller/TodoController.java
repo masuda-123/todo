@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,12 +29,6 @@ public class TodoController {
 	public TodoController(TodoService todoService) {
 		this.todoService = todoService;
 	}
-	
-    // タスク一覧取得
-    @GetMapping
-    public List<TodoResponse> getTodos() {
-        return todoService.findAll();
-    }
     
     // タスク一件取得
     @GetMapping("/{id}")
@@ -44,7 +39,7 @@ public class TodoController {
     // タスク保存
     @PostMapping
     public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { 
-        return todoService.create(request.getTitle());
+        return todoService.create(request.getTitle(), request.getListId());
     }
     
     // タスク名、メモ更新
@@ -74,5 +69,12 @@ public class TodoController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reorderTodos(@RequestBody List<Long> orderedIds) {
         todoService.updateOrder(orderedIds);
+    }
+    
+    @GetMapping
+    public List<TodoResponse> findTodos(
+            @RequestParam Long listId) {
+
+        return todoService.findByListId(listId);
     }
 }
