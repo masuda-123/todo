@@ -86,7 +86,6 @@ public class TodoService {
     // 削除
     public void delete(Long id) {
 
-        // 存在チェック（なければエラー）
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
 

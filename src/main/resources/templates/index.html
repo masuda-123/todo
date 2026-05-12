@@ -90,8 +90,47 @@
 		        <div class="modal-actions">
 			        <button id="save-list-btn">作成する</button>
 			    </div>
-		    </div>
-		   </div>
+			 </div>
+		 </div>
+		 <div id="list-context-menu" class="list-context-menu hidden">
+		    <button id="edit-list-menu-btn">
+		        <i class="fa-solid fa-pen"></i>
+		        編集
+		    </button>
+
+		    <button id="delete-list-menu-btn" class="danger">
+		        <i class="fa-solid fa-trash"></i>
+		        削除
+		    </button>
+		  </div>
+		<div id="edit-list-modal" class="modal hidden">
+			<div class="modal-content">
+		
+		        <button class="edit-list-close-btn">
+		            &times;
+		        </button>
+		
+		        <h3>リストを編集</h3>
+		
+		        <div class="list-name-row">
+		            <label>リスト名</label>
+		
+		            <input id="edit-list-name-input" maxlength="30"/>
+		        </div>
+		
+		        <div class="color-row">
+		            <label>色</label>
+		
+		            <input type="color" id="edit-list-color-input"/>
+		        </div>
+
+		        <div class="modal-actions">
+		            <button id="update-list-btn">
+		                保存する
+		            </button>
+		        </div>
+    		</div>
+		</div>
 	</body>
 	<script src="app.js"></script>
 </html>

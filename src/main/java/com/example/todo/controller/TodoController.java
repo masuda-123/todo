@@ -71,6 +71,7 @@ public class TodoController {
         todoService.updateOrder(orderedIds);
     }
     
+    // リストからタスクを取得
     @GetMapping
     public List<TodoResponse> findTodos(
             @RequestParam Long listId) {

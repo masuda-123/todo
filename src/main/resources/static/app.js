@@ -29,8 +29,20 @@ const listColorInput = document.getElementById("list-color-input");
 const saveListBtn = document.getElementById("save-list-btn");
 const listCloseBtn = document.querySelector(".list-close-btn");
 const emptyMessage = document.getElementById("empty-message");
+const listContextMenu = document.getElementById("list-context-menu");
+const editListMenuBtn = document.getElementById("edit-list-menu-btn");
+const deleteListMenuBtn = document.getElementById("delete-list-menu-btn");
+const editListModal = document.getElementById("edit-list-modal");
+const editListNameInput = document.getElementById("edit-list-name-input");
+const editListColorInput = document.getElementById("edit-list-color-input");
+const updateListBtn = document.getElementById("update-list-btn");
+const editListCloseBtn = document.querySelector(".edit-list-close-btn");
+
+let contextTargetListId = null;
 let sortable = null;
 let currentListId = null;
+let editingList = null;
+let deletingList = null;
 
 const savedListId = localStorage.getItem("currentListId");
 currentListId = savedListId ? Number(savedListId) : null;
@@ -328,22 +340,6 @@ footerCancelBtns.forEach(btn => {
 });
 
 // ============================
-// リストがない場合にUIを更新
-// ============================
-function updateUI(hasLists) {
-
-    if (hasLists) {
-        inputWrapper.style.display = "flex";
-        menuBtn.style.display = "block";
-        emptyMessage.classList.add("hidden");
-    } else {
-        inputWrapper.style.display = "none";
-        menuBtn.style.display = "none";
-        emptyMessage.classList.remove("hidden");
-    }
-}
-
-// ============================
 // 並び替え
 // ============================
 function initSortable() {
@@ -391,8 +387,7 @@ function fetchLists() {
     fetch("/lists")
         .then(res => res.json())
         .then(data => {
-			
-			updateUI(data.length > 0);
+			updateUI(data.length > 0, currentListId != null);
 
             const sidebar =
                 document.getElementById("list-sidebar");
@@ -401,7 +396,18 @@ function fetchLists() {
 
             data.forEach(list => {
 				const li = document.createElement("li");
-
+				
+				li.addEventListener("contextmenu", (e) => {
+				    e.preventDefault();
+				    e.stopPropagation();
+				
+				    contextTargetListId = list.id;
+				
+				    listContextMenu.style.left = `${e.pageX}px`;
+				    listContextMenu.style.top = `${e.pageY}px`;
+				
+				    listContextMenu.classList.remove("hidden");
+				});
                 li.innerHTML = `
 				    <span style="display:inline-block;
 				                 width:10px;
@@ -435,18 +441,34 @@ function fetchLists() {
 			    	document.getElementById("current-list-title").style.color = list.color;
 			    	document.querySelectorAll("#list-sidebar li").forEach(item => item.classList.remove("active"));
 			    	li.classList.add("active");
+			    	updateUI(true, true);
 			    	fetchTodos();
 			    });
         	});
-        	if (currentListId == null && data.length > 0) {
-				currentListId = Number(data[0].id);
-				localStorage.setItem("currentListId", currentListId);
-				document.getElementById("current-list-title").textContent = data[0].name;
-				fetchTodos();
-			}
         });
 }
 
+// ============================
+// リストがない場合、選択されていない場合にUIを更新
+// ============================
+function updateUI(hasLists, selected) {
+
+    if (!selected) {
+		inputWrapper.style.display = "none";
+        menuBtn.style.display = "none";
+        if(!hasLists){
+        	emptyMessage.classList.remove("hidden");
+        	emptyMessage.textContent = "リストを作成してください";
+        } else {
+        	emptyMessage.classList.remove("hidden");
+        	emptyMessage.textContent = "リストを選択してください";
+       	}
+    } else {
+		inputWrapper.style.display = "flex";
+        menuBtn.style.display = "block";
+        emptyMessage.classList.add("hidden");
+	}
+}
 
 // ============================
 // リスト作成モーダルを開く
@@ -479,14 +501,139 @@ saveListBtn.addEventListener("click", () => {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({ name, color })
-    }).then(() => {
-        listNameInput.value = "";
-        listModal.classList.add("hidden");
-        fetchLists();
+    }).then(res => res.json())
+		.then(createdList => {
+	
+	    currentListId = createdList.id;
+	
+	    localStorage.setItem(
+	        "currentListId",
+	        currentListId
+	    );
+	
+	    listNameInput.value = "";
+	
+	    listModal.classList.add("hidden");
+	
+	    fetchLists();
+	});
+});
+
+function closeListContextMenu() {
+    listContextMenu.classList.add("hidden");
+}
+
+// ============================
+// リストの編集
+// ============================
+editListMenuBtn.addEventListener("click", async () => {
+
+    const res = await fetch("/lists");
+
+    const lists = await res.json();
+
+    const targetList = lists.find(
+        list => list.id === contextTargetListId
+    );
+
+    if (!targetList) return;
+
+    editingList = targetList;
+
+    editListNameInput.value = targetList.name;
+
+    editListColorInput.value = targetList.color;
+
+    editListModal.classList.remove("hidden");
+
+    closeListContextMenu();
+});
+
+editListCloseBtn.addEventListener("click", () => {
+    editListModal.classList.add("hidden");
+});
+
+updateListBtn.addEventListener("click", async () => {
+
+    const name = editListNameInput.value.trim();
+
+    const color = editListColorInput.value;
+
+    if (!name) return;
+
+    await fetch(`/lists/${editingList.id}`, {
+        method: "PATCH",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            name,
+            color
+        })
     });
+
+    editListModal.classList.add("hidden");
+
+    fetchLists();
 });
 
 
+// ============================
+// リストの削除
+// ============================
+deleteListMenuBtn.addEventListener("click", async () => {
+
+    const confirmed = confirm(
+        "このリストを削除しますか？"
+    );
+
+    if (!confirmed) return;
+
+    await fetch(`/lists/${contextTargetListId}`, {
+        method: "DELETE"
+    });
+
+	if (currentListId === contextTargetListId) {
+	
+	    currentListId = null;
+	
+	    localStorage.removeItem("currentListId");
+	
+	    todoList.innerHTML = "";
+	
+	    document.getElementById(
+	        "current-list-title"
+	    ).textContent = "Todo リスト";
+	    
+	    document.getElementById("current-list-title").style.color = "#000000";
+	}
+
+    closeListContextMenu();
+
+    fetchLists();
+});
+
+// ============================
+// リストのメニュー閉じる
+// ============================
+document.addEventListener("click", (e) => {
+
+    if (listContextMenu.classList.contains("hidden")) {
+        return;
+    }
+
+    if (listContextMenu.contains(e.target)) {
+        return;
+    }
+
+    closeListContextMenu();
+});
+
+listContextMenu.addEventListener("click", (e) => {
+    e.stopPropagation();
+});
 
 // ============================
 // 初期表示
