@@ -43,6 +43,9 @@ let sortable = null;
 let currentListId = null;
 let editingList = null;
 let deletingList = null;
+let hasLists = false;
+let selectedLists = false;
+let hastasks = false
 
 const savedListId = localStorage.getItem("currentListId");
 currentListId = savedListId ? Number(savedListId) : null;
@@ -52,7 +55,7 @@ currentListId = savedListId ? Number(savedListId) : null;
 // モード管理用変数
 // ============================
 let bulkMode = null; 
-const selectedIds = new Set();
+const selectedTaskIds = new Set();
 let currentTodo = null;
 
 // ============================
@@ -63,8 +66,8 @@ function fetchTodos() {
     fetch(`/todos?listId=${currentListId}`)
         .then(res => res.json())
         .then(data => {
+			updateUI(hasLists, selectedLists, data.length > 0);
             todoList.innerHTML = "";
-
             data.forEach(todo => {
                 const li = document.createElement("li");
                 li.id = `todo-${todo.id}`;
@@ -130,15 +133,15 @@ function createCheckbox(todo) {
     const isBulk = bulkMode !== null;
 
     if (isBulk) {
-        checkbox.checked = selectedIds.has(todo.id);
+        checkbox.checked = selectedTaskIds.has(todo.id);
 
         checkbox.addEventListener("click", (e) => {
             e.stopPropagation();
 
             if (checkbox.checked) {
-                selectedIds.add(todo.id);
+                selectedTaskIds.add(todo.id);
             } else {
-                selectedIds.delete(todo.id);
+                selectedTaskIds.delete(todo.id);
             }
             updateFooter();
         });
@@ -276,7 +279,7 @@ document.getElementById("bulk-switch-status")?.addEventListener("click", () => {
 });
 function enterBulkMode(mode) {
     bulkMode = mode;
-    selectedIds.clear();
+    selectedTaskIds.clear();
 
     actionMenu?.classList.add("hidden");
     inputWrapper.classList.add("fade-hidden");
@@ -289,7 +292,7 @@ function enterBulkMode(mode) {
 // フッター更新
 // ============================
 function updateFooter() {
-    const hasSelection = selectedIds.size > 0;
+    const hasSelection = selectedTaskIds.size > 0;
 
     if (!bulkMode) {
         deleteFooter?.classList.add("hidden");
@@ -312,8 +315,8 @@ function updateFooter() {
 // フッター操作
 // ============================
 footerDeleteBtn?.addEventListener("click", () => {
-    selectedIds.forEach(deleteTodo);
-    selectedIds.clear();
+    selectedTaskIds.forEach(deleteTodo);
+    selectedTaskIds.clear();
     bulkMode = null;
     inputWrapper.classList.remove("fade-hidden");
     fetchTodos();
@@ -321,8 +324,8 @@ footerDeleteBtn?.addEventListener("click", () => {
 });
 
 footerSwitchBtn?.addEventListener("click", () => {
-    selectedIds.forEach(toggleTodo);
-    selectedIds.clear();
+    selectedTaskIds.forEach(toggleTodo);
+    selectedTaskIds.clear();
     bulkMode = null;
     inputWrapper.classList.remove("fade-hidden");
     fetchTodos();
@@ -332,7 +335,7 @@ footerSwitchBtn?.addEventListener("click", () => {
 footerCancelBtns.forEach(btn => {
     btn.addEventListener("click", () => {
         bulkMode = null;
-        selectedIds.clear();
+        selectedTaskIds.clear();
         inputWrapper.classList.remove("fade-hidden");
         fetchTodos();
         updateFooter();
@@ -387,7 +390,10 @@ function fetchLists() {
     fetch("/lists")
         .then(res => res.json())
         .then(data => {
-			updateUI(data.length > 0, currentListId != null);
+			hasLists = data.length > 0;
+			updateUI(hasLists, selectedLists, hastasks)
+			
+			selectedLists = (currentListId != null);
 
             const sidebar =
                 document.getElementById("list-sidebar");
@@ -441,7 +447,8 @@ function fetchLists() {
 			    	document.getElementById("current-list-title").style.color = list.color;
 			    	document.querySelectorAll("#list-sidebar li").forEach(item => item.classList.remove("active"));
 			    	li.classList.add("active");
-			    	updateUI(true, true);
+			    	hasLists = true;
+			    	selectedLists = true;
 			    	fetchTodos();
 			    });
         	});
@@ -449,11 +456,11 @@ function fetchLists() {
 }
 
 // ============================
-// リストがない場合、選択されていない場合にUIを更新
+// リストやタスクがない場合、リストが選択されていない場合にUIを更新
 // ============================
-function updateUI(hasLists, selected) {
+function updateUI(hasLists, selectedLists, hasTasks) {
 
-    if (!selected) {
+    if (!selectedLists) {
 		inputWrapper.style.display = "none";
         menuBtn.style.display = "none";
         if(!hasLists){
@@ -464,9 +471,13 @@ function updateUI(hasLists, selected) {
         	emptyMessage.textContent = "リストを選択してください";
        	}
     } else {
-		inputWrapper.style.display = "flex";
-        menuBtn.style.display = "block";
-        emptyMessage.classList.add("hidden");
+		if(!hasTasks){
+			menuBtn.style.display = "none";
+		} else {
+	        menuBtn.style.display = "block";
+	    }
+	     inputWrapper.style.display = "flex";
+	     emptyMessage.classList.add("hidden");
 	}
 }
 
@@ -600,6 +611,7 @@ deleteListMenuBtn.addEventListener("click", async () => {
 	    currentListId = null;
 	
 	    localStorage.removeItem("currentListId");
+	    selectedLists = false;
 	
 	    todoList.innerHTML = "";
 	
