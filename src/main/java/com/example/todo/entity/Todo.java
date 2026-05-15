@@ -1,5 +1,7 @@
 package com.example.todo.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,6 +31,9 @@ public class Todo {
 	@Column(columnDefinition = "TEXT")
 	private String memo;
 	
+	@Column(name = "date_time")
+	private LocalDateTime dateTime;
+	
 	@ManyToOne
 	@JoinColumn(name = "list_id")
 	private TodoList list;
@@ -50,6 +55,9 @@ public class Todo {
     
     public String getMemo() { return memo; }
     public void setMemo(String memo) { this.memo = memo; }
+    
+    public LocalDateTime getDateTime() { return dateTime; }
+    public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
     
     public TodoList getList() { return list; }
     public void setList(TodoList list) { this.list = list; }

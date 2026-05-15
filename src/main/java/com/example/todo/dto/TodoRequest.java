@@ -1,5 +1,7 @@
 package com.example.todo.dto;
 
+import java.time.LocalDateTime;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -10,6 +12,8 @@ public class TodoRequest {
     private String title;
     
     private String memo;
+    
+    private LocalDateTime dateTime;
     
     private Long listId;
     
@@ -32,6 +36,14 @@ public class TodoRequest {
     
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+    
+    public LocalDateTime getDateTime() {
+    	return dateTime;
+    }
+    
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
     
     public Long getListId() {

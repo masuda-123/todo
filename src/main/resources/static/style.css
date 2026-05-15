@@ -29,7 +29,6 @@ ul {
 ul li {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     list-style: none;
     border-bottom: 1px solid #ccc;
     padding: 10px 5px;
@@ -140,7 +139,6 @@ input[type="checkbox"] {
 
 #todo-list li {
   display: flex;
-  align-items: center;
   justify-content: space-between;
 }
 
@@ -322,7 +320,7 @@ button:hover {
     cursor: grab;
 }
 
-.task-name-row, .memo-row, .list-name-row, .color-row{
+.task-name-row, .memo-row,  .datetime-row, .list-name-row, .color-row{
 	display: flex;
 	justify-content: space-between;
 	margin-bottom: 10px;
@@ -330,20 +328,24 @@ button:hover {
 	font-size: 13px;
 }
 
-.task-name-row label, .memo-row label, .list-name-row label, .color-row label{
+label{
 	width: 10%;
 	margin: auto 0;
 }
 
-.task-name-row input, .memo-row input, .list-name-row input{
+.task-name-row input, .memo-row textarea, .list-name-row input{
 	width: 90%;
+}
+
+.datetime-row input{
+	margin-right: auto;
 }
 
 .color-row input{
 	margin-right: auto;
 }
 
-.todo-memo {
+.todo-memo, .todo-datetime {
     font-size: 13px;
 
     color: #777;

@@ -23,6 +23,7 @@ const editCloseBtn = document.querySelector(".edit-close-btn");
 const editModal = document.getElementById("edit-modal");
 const editInput = document.getElementById("edit-input");
 const editMemo = document.getElementById("edit-memo");
+const editDateTime = document.getElementById("edit-datetime");
 const listModal = document.getElementById("list-modal");
 const listNameInput = document.getElementById("list-name-input");
 const listColorInput = document.getElementById("list-color-input");
@@ -92,6 +93,25 @@ function fetchTodos() {
 				    memo.style.textDecoration = todo.done ? "line-through" : "none";
 				
 				    text.appendChild(memo);
+				}
+				
+				if (todo.dateTime){
+				    const dateTime = document.createElement("div");
+				    dateTime.classList.add("todo-datetime");
+				
+				    const d = new Date(todo.dateTime);
+				
+				    dateTime.textContent =
+				        d.toLocaleString("ja-JP", {
+				            year: "numeric",
+				            month: "2-digit",
+				            day: "2-digit",
+				            hour: "2-digit",
+				            minute: "2-digit"
+				        });
+				
+					dateTime.style.textDecoration = todo.done ? "line-through" : "none";
+				    text.appendChild(dateTime);
 				}
 
                 const btnWrapper = document.createElement("div");
@@ -216,6 +236,7 @@ function editTodo(todo) {
     currentTodo = todo;
     editInput.value = todo.title;
     editMemo.value = todo.memo;
+    editDateTime.value = todo.dateTime ? todo.dateTime.slice(0, 16): "";
     editModal.classList.remove("hidden");
 }
 
@@ -233,12 +254,13 @@ editCloseBtn?.addEventListener("click", () => {
 saveBtn?.addEventListener("click", () => {
     const title = editInput.value.trim();
     const memo = editMemo.value.trim();
+    const dateTime = editDateTime.value.trim();
     if (!title) return;
 
     fetch(`/todos/${currentTodo.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, memo})
+        body: JSON.stringify({ title, memo, dateTime})
     })
     .then(res => res.json())
     .then(updated => {

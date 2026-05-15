@@ -48,7 +48,7 @@ public class TodoController {
             @PathVariable Long id,
             @Valid @RequestBody TodoRequest request) {
 
-        return todoService.update(id, request.getTitle(), request.getMemo());
+        return todoService.update(id, request.getTitle(), request.getMemo(), request.getDateTime());
     }
     
     // タスク削除

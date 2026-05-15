@@ -1,5 +1,6 @@
 package com.example.todo.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class TodoService {
             todo.getTitle(),
             todo.isDone(),
             todo.getMemo(),
+            todo.getDateTime(),
             todo.getList().getColor()
         );
     }
@@ -72,13 +74,14 @@ public class TodoService {
     }
     
     // 更新
-    public TodoResponse update(Long id, String title, String memo) {
+    public TodoResponse update(Long id, String title, String memo, LocalDateTime dateTime) {
 
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
 
         todo.setTitle(title);
         todo.setMemo(memo);
+        todo.setDateTime(dateTime);
 
         return toResponse(todoRepository.save(todo));
     }
