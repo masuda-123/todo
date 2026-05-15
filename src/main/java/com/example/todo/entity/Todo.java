@@ -34,6 +34,9 @@ public class Todo {
 	@Column(name = "date_time")
 	private LocalDateTime dateTime;
 	
+	@Column
+	private boolean notified;
+	
 	@ManyToOne
 	@JoinColumn(name = "list_id")
 	private TodoList list;
@@ -58,6 +61,9 @@ public class Todo {
     
     public LocalDateTime getDateTime() { return dateTime; }
     public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
+    
+    public boolean isNotified() { return notified; }
+    public void setNotified(boolean notified) { this.notified = notified; }
     
     public TodoList getList() { return list; }
     public void setList(TodoList list) { this.list = list; }

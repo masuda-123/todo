@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,6 +28,12 @@ public class TodoController {
 	public TodoController(TodoService todoService) {
 		this.todoService = todoService;
 	}
+	
+    // タスク全件取得
+    @GetMapping
+    public List<TodoResponse> getTodo() {
+        return todoService.findAll();
+    }
     
     // タスク一件取得
     @GetMapping("/{id}")
@@ -42,7 +47,7 @@ public class TodoController {
         return todoService.create(request.getTitle(), request.getListId());
     }
     
-    // タスク名、メモ更新
+    // タスク名、メモ、日時更新
     @PatchMapping("/{id}")
     public TodoResponse updateTodo(
             @PathVariable Long id,
@@ -64,18 +69,16 @@ public class TodoController {
         return todoService.toggleStatus(id);
     }
     
+    // タスクの通知状態の更新
+    @PatchMapping("/{id}/notified")
+    public TodoResponse notifiedTodo(@PathVariable Long id) {
+        return todoService.markNotified(id);
+    }
+    
     // タスクの並び替え
     @PatchMapping("/reorder")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reorderTodos(@RequestBody List<Long> orderedIds) {
         todoService.updateOrder(orderedIds);
-    }
-    
-    // リストからタスクを取得
-    @GetMapping
-    public List<TodoResponse> findTodos(
-            @RequestParam Long listId) {
-
-        return todoService.findByListId(listId);
     }
 }

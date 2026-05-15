@@ -32,6 +32,7 @@ public class TodoService {
             todo.isDone(),
             todo.getMemo(),
             todo.getDateTime(),
+            todo.isNotified(),
             todo.getList().getColor()
         );
     }
@@ -61,6 +62,7 @@ public class TodoService {
         newTodo.setDone(false);
         newTodo.setDisplayOrder(0);
         newTodo.setList(list);
+        newTodo.setNotified(false);
         todoRepository.save(newTodo);
 
         return toResponse(newTodo);
@@ -101,6 +103,16 @@ public class TodoService {
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
         todo.setDone(!todo.isDone()); // true ⇄ false 反転
+        return toResponse(todoRepository.save(todo));
+
+    }
+    
+    // 通知状態の更新
+    public TodoResponse markNotified(Long id) {
+    	
+        Todo todo = todoRepository.findById(id)
+        	.orElseThrow(() -> new TodoNotFoundException(id));
+        todo.setNotified(true);
         return toResponse(todoRepository.save(todo));
 
     }

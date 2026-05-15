@@ -64,9 +64,11 @@ let currentTodo = null;
 // ============================
 function fetchTodos() {
 	if (!currentListId) return;
-    fetch(`/todos?listId=${currentListId}`)
+    fetch(`/lists/${currentListId}/todos`)
         .then(res => res.json())
         .then(data => {
+			todoCache = data;
+			console.log(data);
 			updateUI(hasLists, selectedLists, data.length > 0);
             todoList.innerHTML = "";
             data.forEach(todo => {
@@ -669,7 +671,43 @@ listContextMenu.addEventListener("click", (e) => {
     e.stopPropagation();
 });
 
+
+// ============================
+// 通知を出す
+// ============================
+async function checkNotifications() {
+    if (Notification.permission !== "granted") return;
+
+    const res = await fetch(`/todos`);
+    const todos = await res.json();
+    const now = new Date();
+
+    todos.forEach(todo => {
+        if (!todo.dateTime) return;
+        if (todo.done) return;
+        if (todo.notified === true) return;
+
+        const due = new Date(todo.dateTime);
+
+        if (due <= now) {
+            showNotification(todo);
+        }
+    });
+}
+
+function showNotification(todo) {
+    new Notification("タスクの時間です", {
+        body: todo.title,
+    });
+    
+    fetch(`/todos/${todo.id}/notified`, {
+        method: "PATCH"
+    });
+}
+
 // ============================
 // 初期表示
 // ============================
 fetchLists();
+Notification.requestPermission();
+setInterval(checkNotifications, 30000);

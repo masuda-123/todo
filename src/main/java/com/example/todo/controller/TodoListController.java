@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todo.dto.TodoListResponse;
+import com.example.todo.dto.TodoResponse;
 import com.example.todo.entity.TodoList;
 import com.example.todo.service.TodoListService;
+import com.example.todo.service.TodoService;
 
 import jakarta.validation.Valid;
 
@@ -24,22 +26,27 @@ import jakarta.validation.Valid;
 public class TodoListController {
 
 	private final TodoListService todoListService;
+	private final TodoService todoService;
 	
-	public TodoListController(TodoListService todoListService) {
+	public TodoListController(TodoListService todoListService, TodoService todoService) {
 		this.todoListService = todoListService;
+		this.todoService = todoService;
 	}
 
+	// 全リストの取得
     @GetMapping
     public List<TodoListResponse> findAll() {
         return todoListService.findAll();
     }
     
+    // リストの作成
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TodoListResponse create(@Valid @RequestBody TodoList request) {
         return todoListService.create(request.getName(), request.getColor());
     }
     
+    // リストの更新
     @PatchMapping("/{id}")
     public TodoListResponse updateList(
             @PathVariable Long id,
@@ -48,10 +55,16 @@ public class TodoListController {
         return todoListService.update(id, request.getName(), request.getColor());
     }
     
-    // タスク削除
+    // リストの削除
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTodo(@PathVariable Long id) {
         todoListService.delete(id);
+    }
+    
+    // リストからタスクを取得
+    @GetMapping("/{id}/todos")
+    public List<TodoResponse> findTodos(@PathVariable Long id) {
+        return todoService.findByListId(id);
     }
 }
