@@ -44,7 +44,7 @@ ul li {
 	height: 60px;
 }
 
-#input-title, #edit-input, #list-name-input {
+#input-title, #edit-input, #list-name-input, #edit-list-name-input {
 	font-size: 16px;
     flex: 1;
     height: 36px;
@@ -142,15 +142,10 @@ input[type="checkbox"] {
   justify-content: space-between;
 }
 
-.menu-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
 .action-menu {
   position: absolute;
-  top: 40px;
-  right: 0;
+  top: -5px;
+  right: -170px;
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
