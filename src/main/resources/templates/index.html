@@ -23,14 +23,14 @@
 				<div class="content-wrapper">
 					<div class="header-wrapper">
 						<h2 id="current-list-title">
-							Todo リスト
+							Todo タスク
 						</h2>
 						<div id="menu-wrapper" class="menu-wrapper">
 							<button id="menu-btn" class="icon-btn" title="メニュー">
 								<i class="fa-solid fa-bars"></i>
 							</button>
 							<div id="action-menu" class="action-menu hidden">
-								<button id="bulk-switch-status">一括ステータス変更</button>
+								<button id="bulk-done">一括ステータス変更</button>
 								<button id="bulk-delete">削除</button>
 							</div>
 						</div>
@@ -51,8 +51,9 @@
 					    <button id="footer-cancel">キャンセル</button>
 					</div>
 					
-					<div id="selection-footer-switch-status-mode" class="selection-footer-switch-status-mode hidden">
-					    <button id="footer-switch-status">ステータスを変更する</button>
+					<div id="selection-footer-done-mode" class="selection-footer-done-mode hidden">
+					    <button id="footer-done">全て完了済みにする</button>
+					    <button id="footer-not-done">全て未完了にする</button>
 					    <button id="footer-cancel">キャンセル</button>
 					</div>
 				</div>
@@ -75,7 +76,7 @@
 					<input type="datetime-local" id="edit-datetime">
 				</div>
 				<div class="modal-actions">
-					<button id="save-btn">保存する</button>
+					<button id="edit-btn">保存する</button>
 				</div>
 			</div>
 		</div>
@@ -129,7 +130,7 @@
 		        </div>
 
 		        <div class="modal-actions">
-		            <button id="update-list-btn">
+		            <button id="edit-list-btn">
 		                保存する
 		            </button>
 		        </div>

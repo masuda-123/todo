@@ -11,42 +11,46 @@ const actionMenu = document.getElementById("action-menu");
 
 
 const deleteFooter = document.getElementById("selection-footer-delete-mode");
-const switchFooter = document.getElementById("selection-footer-switch-status-mode");
+const doneFooter = document.getElementById("selection-footer-done-mode");
 
 const footerDeleteBtn = document.getElementById("footer-delete");
-const footerSwitchBtn = document.getElementById("footer-switch-status");
-
+const footerDoneBtn = document.getElementById("footer-done");
+const footerNotDoneBtn = document.getElementById("footer-not-done");
 const footerCancelBtns = document.querySelectorAll("#footer-cancel");
 
-const saveBtn = document.getElementById("save-btn");
+const editBtn = document.getElementById("edit-btn");
 const editCloseBtn = document.querySelector(".edit-close-btn");
 const editModal = document.getElementById("edit-modal");
 const editInput = document.getElementById("edit-input");
 const editMemo = document.getElementById("edit-memo");
 const editDateTime = document.getElementById("edit-datetime");
+
 const listModal = document.getElementById("list-modal");
 const listNameInput = document.getElementById("list-name-input");
 const listColorInput = document.getElementById("list-color-input");
 const saveListBtn = document.getElementById("save-list-btn");
 const listCloseBtn = document.querySelector(".list-close-btn");
+
 const emptyMessage = document.getElementById("empty-message");
 const listContextMenu = document.getElementById("list-context-menu");
+
 const editListMenuBtn = document.getElementById("edit-list-menu-btn");
 const deleteListMenuBtn = document.getElementById("delete-list-menu-btn");
+
 const editListModal = document.getElementById("edit-list-modal");
 const editListNameInput = document.getElementById("edit-list-name-input");
 const editListColorInput = document.getElementById("edit-list-color-input");
-const updateListBtn = document.getElementById("update-list-btn");
+const editListBtn = document.getElementById("edit-list-btn");
 const editListCloseBtn = document.querySelector(".edit-list-close-btn");
 
-let contextTargetListId = null;
+let currentTodo = null;
 let sortable = null;
-let currentListId = null;
+let contextTargetListId = null;
 let editingList = null;
 let deletingList = null;
 let hasLists = false;
 let selectedLists = false;
-let hastasks = false
+let hasTasks = false;
 
 const savedListId = localStorage.getItem("currentListId");
 currentListId = savedListId ? Number(savedListId) : null;
@@ -55,12 +59,13 @@ currentListId = savedListId ? Number(savedListId) : null;
 // ============================
 // モード管理用変数
 // ============================
-let bulkMode = null; 
+let bulkMode = false;
+let deleteMode = false; 
+let doneMode = false;
 const selectedTaskIds = new Set();
-let currentTodo = null;
 
 // ============================
-// 一覧取得
+// タスクの一覧取得
 // ============================
 function fetchTodos() {
 	if (!currentListId) return;
@@ -68,15 +73,13 @@ function fetchTodos() {
         .then(res => res.json())
         .then(data => {
 			todoCache = data;
-			console.log(data);
-			updateUI(hasLists, selectedLists, data.length > 0);
+			hasTasks = data.length > 0;
+			updateHeader();
             todoList.innerHTML = "";
             data.forEach(todo => {
                 const li = document.createElement("li");
                 li.id = `todo-${todo.id}`;
                 li.style.setProperty("--list-color", todo.listColor);
-                const checkbox = createCheckbox(todo);
-
                 const text = document.createElement("div");
                 text.classList.add("text-wrapper");
                 const title = document.createElement("div");
@@ -93,16 +96,13 @@ function fetchTodos() {
 				    memo.classList.add("todo-memo");
 				    memo.textContent = todo.memo;
 				    memo.style.textDecoration = todo.done ? "line-through" : "none";
-				
 				    text.appendChild(memo);
 				}
 				
 				if (todo.dateTime){
 				    const dateTime = document.createElement("div");
 				    dateTime.classList.add("todo-datetime");
-				
 				    const d = new Date(todo.dateTime);
-				
 				    dateTime.textContent =
 				        d.toLocaleString("ja-JP", {
 				            year: "numeric",
@@ -115,22 +115,20 @@ function fetchTodos() {
 					dateTime.style.textDecoration = todo.done ? "line-through" : "none";
 				    text.appendChild(dateTime);
 				}
-
-                const btnWrapper = document.createElement("div");
-                btnWrapper.classList.add("btn-wrapper");
-
-                if (!bulkMode) {
-                    btnWrapper.appendChild(createEditBtn(todo, text));
-                }
-
-                if (bulkMode) {
+                
+                if (deleteMode){
+					li.appendChild(text);
+                    li.appendChild(createCheckbox(todo));
+				} else if(doneMode) {
+					li.appendChild(text);
+				} else {
+					li.appendChild(createCheckbox(todo));
                     li.appendChild(text);
-                    li.appendChild(checkbox);
-                } else {
-                    li.appendChild(checkbox);
-                    li.appendChild(text);
+                   	const btnWrapper = document.createElement("div");
+                	btnWrapper.classList.add("btn-wrapper");
                     li.appendChild(btnWrapper);
-                }
+                    btnWrapper.appendChild(createEditBtn(todo, text));
+				}
 
                 todoList.appendChild(li);
             });
@@ -140,23 +138,20 @@ function fetchTodos() {
 }
 
 // ============================
-// チェックボックス
+// タスクのチェックボックス
 // ============================
 function createCheckbox(todo) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.classList.add("todo-checkbox");
-	if (bulkMode) {
+	if (deleteMode) {
 	    checkbox.classList.add("bulk");
 	} else {
-	    checkbox.classList.remove("bulk");
+	    checkbox?.classList.remove("bulk");
 	}
 
-    const isBulk = bulkMode !== null;
-
-    if (isBulk) {
+    if (deleteMode) {
         checkbox.checked = selectedTaskIds.has(todo.id);
-
         checkbox.addEventListener("click", (e) => {
             e.stopPropagation();
 
@@ -167,16 +162,13 @@ function createCheckbox(todo) {
             }
             updateFooter();
         });
-
-    } else {
+	} else {
         checkbox.checked = todo.done;
-
         checkbox.addEventListener("click", (e) => {
             e.stopPropagation();
             toggleTodo(todo.id);
         });
     }
-
     return checkbox;
 }
 
@@ -198,7 +190,7 @@ function createEditBtn(todo, textWrapper) {
 }
 
 // ============================
-// 追加
+// タスクの追加
 // ============================
 addBtn.addEventListener("click", () => {
     const title = inputTitle.value.trim();
@@ -224,7 +216,7 @@ addBtn.addEventListener("click", () => {
 
 
 // ============================
-// 削除
+// タスクの削除
 // ============================
 function deleteTodo(id) {
     fetch(`/todos/${id}`, { method: "DELETE" })
@@ -232,7 +224,7 @@ function deleteTodo(id) {
 }
 
 // ============================
-// 編集モーダルを開く
+// タスクの編集モーダルを開く
 // ============================
 function editTodo(todo) {
     currentTodo = todo;
@@ -244,16 +236,16 @@ function editTodo(todo) {
 
 
 // ============================
-// 編集モーダル閉じる
+// タスクの編集モーダル閉じる
 // ============================
 editCloseBtn?.addEventListener("click", () => {
     editModal.classList.add("hidden");
 });
 
 // ============================
-// タスク名の編集の保存
-// ============================
-saveBtn?.addEventListener("click", () => {
+// タスクの編集の保存
+// ===========================
+editBtn?.addEventListener("click", () => {
     const title = editInput.value.trim();
     const memo = editMemo.value.trim();
     const dateTime = editDateTime.value.trim();
@@ -265,17 +257,25 @@ saveBtn?.addEventListener("click", () => {
         body: JSON.stringify({ title, memo, dateTime})
     })
     .then(res => res.json())
-    .then(updated => {
+    .then(() => {
         fetchTodos();
         editModal.classList.add("hidden");
     });
 });
 
 // ============================
-// ステータス切替
+// タスクのステータス切替
 // ============================
 function toggleTodo(id) {
     fetch(`/todos/${id}/toggle`, { method: "PATCH" })
+        .then(() => fetchTodos());
+}
+
+// ============================
+// 全てのタスクのステータス切替
+// ============================
+function updateAllTodoStatus(done) {
+    fetch(`/lists/${currentListId}/todos?done=${done}`, { method: "PATCH" })
         .then(() => fetchTodos());
 }
 
@@ -295,44 +295,66 @@ document.addEventListener("click", () => {
 // 一括モード開始
 // ============================
 document.getElementById("bulk-delete")?.addEventListener("click", () => {
-    enterBulkMode("delete");
-});
-
-document.getElementById("bulk-switch-status")?.addEventListener("click", () => {
-    enterBulkMode("switch");
-});
-function enterBulkMode(mode) {
-    bulkMode = mode;
+	bulkMode = true;
+	deleteMode = true;
     selectedTaskIds.clear();
-
     actionMenu?.classList.add("hidden");
     inputWrapper.classList.add("fade-hidden");
 
     fetchTodos();
     updateFooter();
+});
+
+document.getElementById("bulk-done")?.addEventListener("click", () => {
+	bulkMode = true;
+	doneMode = true;
+    actionMenu?.classList.add("hidden");
+    inputWrapper.classList.add("fade-hidden");
+    
+    fetchTodos();
+    updateFooter();
+});
+
+// ============================
+// ヘッダーの更新
+// ============================
+function updateHeader() {
+	
+    if (selectedLists) {
+		emptyMessage.classList.add("hidden");
+		inputWrapper.style.display = "flex";
+		if(bulkMode){
+			menuBtn.style.display = "none";
+		}else if(hasTasks){
+			menuBtn.style.display = "block";
+		} else {
+	        menuBtn.style.display = "none";
+	    }
+    } else {
+		inputWrapper.style.display = "none";
+        menuBtn.style.display = "none";
+        emptyMessage.classList.remove("hidden");
+        if(hasLists){
+        	emptyMessage.textContent = "リストを選択してください";
+        } else {
+        	emptyMessage.textContent = "リストを作成してください";
+       	}
+	}
 }
 
 // ============================
 // フッター更新
 // ============================
 function updateFooter() {
-    const hasSelection = selectedTaskIds.size > 0;
-
-    if (!bulkMode) {
-        deleteFooter?.classList.add("hidden");
-        switchFooter?.classList.add("hidden");
-        return;
-    }
-
-    if (bulkMode === "delete") {
+	
+	if (deleteMode) {
         deleteFooter?.classList.remove("hidden");
-        footerDeleteBtn.style.display = hasSelection ? "inline-block" : "none";
-    }
-
-    if (bulkMode === "switch") {
-        switchFooter?.classList.remove("hidden");
-        footerSwitchBtn.style.display = hasSelection ? "inline-block" : "none";
-    }
+    } else if(doneMode) {
+		doneFooter?.classList.remove("hidden");
+	} else {
+		deleteFooter?.classList.add("hidden");
+		doneFooter?.classList.add("hidden");
+	}
 }
 
 // ============================
@@ -341,16 +363,26 @@ function updateFooter() {
 footerDeleteBtn?.addEventListener("click", () => {
     selectedTaskIds.forEach(deleteTodo);
     selectedTaskIds.clear();
-    bulkMode = null;
+    bulkMode = false;
+    deleteMode = false;
     inputWrapper.classList.remove("fade-hidden");
     fetchTodos();
     updateFooter();
 });
 
-footerSwitchBtn?.addEventListener("click", () => {
-    selectedTaskIds.forEach(toggleTodo);
-    selectedTaskIds.clear();
-    bulkMode = null;
+footerDoneBtn?.addEventListener("click", () => {
+	updateAllTodoStatus(true);
+    bulkMode = false;
+    doneMode = false;
+    inputWrapper.classList.remove("fade-hidden");
+    fetchTodos();
+    updateFooter();
+});
+
+footerNotDoneBtn?.addEventListener("click", () => {
+	updateAllTodoStatus(false);
+    bulkMode = false;
+    doneMode = false;
     inputWrapper.classList.remove("fade-hidden");
     fetchTodos();
     updateFooter();
@@ -358,8 +390,13 @@ footerSwitchBtn?.addEventListener("click", () => {
 
 footerCancelBtns.forEach(btn => {
     btn.addEventListener("click", () => {
-        bulkMode = null;
-        selectedTaskIds.clear();
+        bulkMode = false;
+        if(deleteMode) {
+        	deleteMode = false;
+        	selectedTaskIds.clear();
+        }else{
+			doneMode = false;
+		}
         inputWrapper.classList.remove("fade-hidden");
         fetchTodos();
         updateFooter();
@@ -415,7 +452,7 @@ function fetchLists() {
         .then(res => res.json())
         .then(data => {
 			hasLists = data.length > 0;
-			updateUI(hasLists, selectedLists, hastasks)
+			updateHeader();
 			
 			selectedLists = (currentListId != null);
 
@@ -462,7 +499,8 @@ function fetchLists() {
 				}
                 
                 li.addEventListener("click", () => {
-			
+					hasLists = true;
+			    	selectedLists = true;
 			    	currentListId = Number(list.id);
 			    	
 			    	localStorage.setItem("currentListId", currentListId);
@@ -471,38 +509,10 @@ function fetchLists() {
 			    	document.getElementById("current-list-title").style.color = list.color;
 			    	document.querySelectorAll("#list-sidebar li").forEach(item => item.classList.remove("active"));
 			    	li.classList.add("active");
-			    	hasLists = true;
-			    	selectedLists = true;
 			    	fetchTodos();
 			    });
         	});
         });
-}
-
-// ============================
-// リストやタスクがない場合、リストが選択されていない場合にUIを更新
-// ============================
-function updateUI(hasLists, selectedLists, hasTasks) {
-
-    if (!selectedLists) {
-		inputWrapper.style.display = "none";
-        menuBtn.style.display = "none";
-        if(!hasLists){
-        	emptyMessage.classList.remove("hidden");
-        	emptyMessage.textContent = "リストを作成してください";
-        } else {
-        	emptyMessage.classList.remove("hidden");
-        	emptyMessage.textContent = "リストを選択してください";
-       	}
-    } else {
-		if(!hasTasks){
-			menuBtn.style.display = "none";
-		} else {
-	        menuBtn.style.display = "block";
-	    }
-	     inputWrapper.style.display = "flex";
-	     emptyMessage.classList.add("hidden");
-	}
 }
 
 // ============================
@@ -588,7 +598,7 @@ editListCloseBtn.addEventListener("click", () => {
     editListModal.classList.add("hidden");
 });
 
-updateListBtn.addEventListener("click", async () => {
+editListBtn.addEventListener("click", async () => {
 
     const name = editListNameInput.value.trim();
 
@@ -641,7 +651,7 @@ deleteListMenuBtn.addEventListener("click", async () => {
 	
 	    document.getElementById(
 	        "current-list-title"
-	    ).textContent = "Todo リスト";
+	    ).textContent = "Todo タスク";
 	    
 	    document.getElementById("current-list-title").style.color = "#000000";
 	}
@@ -673,7 +683,7 @@ listContextMenu.addEventListener("click", (e) => {
 
 
 // ============================
-// 通知を出す
+// タスクの通知を出す
 // ============================
 async function checkNotifications() {
     if (Notification.permission !== "granted") return;

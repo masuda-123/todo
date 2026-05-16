@@ -68,6 +68,16 @@ public class TodoService {
         return toResponse(newTodo);
     }
     
+    // リストからタスクを取得
+    public List<TodoResponse> findByListId(Long listId) {
+    	
+        return todoRepository
+                .findByListIdOrderByDisplayOrderAsc(listId)
+                .stream()
+                .map(TodoResponse::from)
+                .toList();
+    }
+    
     // 1件取得
     public TodoResponse findById(Long id) {
         Todo todo = todoRepository.findById(id)
@@ -75,7 +85,7 @@ public class TodoService {
         return toResponse(todo);
     }
     
-    // 更新
+    // 1件のタスクの更新
     public TodoResponse update(Long id, String title, String memo, LocalDateTime dateTime) {
 
         Todo todo = todoRepository.findById(id)
@@ -88,7 +98,7 @@ public class TodoService {
         return toResponse(todoRepository.save(todo));
     }
     
-    // 削除
+    // 1件のタスクの削除
     public void delete(Long id) {
 
         Todo todo = todoRepository.findById(id)
@@ -97,7 +107,7 @@ public class TodoService {
         todoRepository.delete(todo);
     }
     
-    // 完了、未完了の切り替え
+    // 1件のタスクの完了、未完了の切り替え
     public TodoResponse toggleStatus(Long id) {
     	
         Todo todo = todoRepository.findById(id)
@@ -107,7 +117,18 @@ public class TodoService {
 
     }
     
-    // 通知状態の更新
+    
+    // 全てのタスクの完了、未完了切り替え
+    @Transactional
+    public void updateAllStatus(Long listId, boolean done) {
+        List<Todo> todos = todoRepository.findByListIdOrderByDisplayOrderAsc(listId);
+
+        for (Todo todo : todos) {
+            todo.setDone(done);
+        }
+    }
+    
+    // タスクの通知状態の更新
     public TodoResponse markNotified(Long id) {
     	
         Todo todo = todoRepository.findById(id)
@@ -117,7 +138,7 @@ public class TodoService {
 
     }
     
-    // 並び替え
+    // タスクの並び替え
     @Transactional
     public void updateOrder(List<Long> orderedIds) {
     	
@@ -128,16 +149,6 @@ public class TodoService {
 
             todo.setDisplayOrder(i);
         }
-    }
-    
-    // リストから取得
-    public List<TodoResponse> findByListId(Long listId) {
-    	
-        return todoRepository
-                .findByListIdOrderByDisplayOrderAsc(listId)
-                .stream()
-                .map(TodoResponse::from)
-                .toList();
     }
 }
 

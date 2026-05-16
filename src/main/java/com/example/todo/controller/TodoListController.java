@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,5 +67,13 @@ public class TodoListController {
     @GetMapping("/{id}/todos")
     public List<TodoResponse> findTodos(@PathVariable Long id) {
         return todoService.findByListId(id);
+    }
+    
+    // リストのタスクを全て完了、未完了にする
+    @PatchMapping("/{id}/todos")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateAllStatus(@PathVariable Long id, @RequestParam boolean done) {
+
+        todoService.updateAllStatus(id, done);
     }
 }
