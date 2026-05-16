@@ -143,25 +143,36 @@ input[type="checkbox"] {
 }
 
 .action-menu {
-  position: absolute;
-  top: -5px;
-  right: -170px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  width: 160px;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
+  	position: absolute;
+  	top: -5px;
+  	right: -170px;
+  	background: white;
+  	border: 1px solid #ddd;
+   	backdrop-filter: blur(20px);
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
 }
 
 .action-menu button {
-  padding: 10px;
-  border: none;
-  background: none;
-  text-align: left;
-  cursor: pointer;
+    border: none;
+    background: none;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-menu button:hover {
+    background-color: #f3f4f6;
 }
 
 button:hover {
@@ -447,7 +458,7 @@ body {
     padding: 6px;
     display: flex;
     flex-direction: column;
-    z-index: 9999;
+    z-index: 100;
 }
 
 .list-context-menu button {
@@ -468,6 +479,6 @@ body {
     background-color: #f3f4f6;
 }
 
-.list-context-menu .danger {
+.danger {
     color: #ef4444;
 }
