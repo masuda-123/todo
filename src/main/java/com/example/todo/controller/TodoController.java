@@ -44,7 +44,7 @@ public class TodoController {
     // タスク保存
     @PostMapping
     public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { 
-        return todoService.create(request.getTitle(), request.getListId());
+        return todoService.create(request.getTitle(), request.getMemo(), request.getDateTime(), request.getListId());
     }
     
     // タスク名、メモ、日時更新

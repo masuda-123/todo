@@ -2,9 +2,6 @@
 // 要素取得
 // ============================
 const todoList = document.getElementById('todo-list');
-const inputWrapper = document.querySelector(".input-wrapper");
-const addBtn = document.getElementById('add-btn');
-const inputTitle = document.getElementById('input-title');
 
 const menuBtn = document.getElementById("menu-btn");
 const actionMenu = document.getElementById("action-menu");
@@ -18,18 +15,26 @@ const footerDoneBtn = document.getElementById("footer-done");
 const footerNotDoneBtn = document.getElementById("footer-not-done");
 const footerCancelBtns = document.querySelectorAll("#footer-cancel");
 
-const editBtn = document.getElementById("edit-btn");
-const editCloseBtn = document.querySelector(".edit-close-btn");
+const openAddTodoMoalBtn = document.getElementById("open-add-todo-modal-btn");
+const addTodoCloseBtn = document.getElementById("add-todo-close-modal-btn");
+const addTodoModal = document.getElementById("add-todo-modal");
+const addTodoInput = document.getElementById("add-todo-input");
+const addTodoMemo = document.getElementById("add-todo-memo");
+const addTodoDateTime = document.getElementById("add-todo-datetime");
+const addTodoBtn = document.getElementById("add-todo-btn");
+
+const editTodoCloseBtn = document.getElementById("edit-todo-close-modal-btn");
 const editModal = document.getElementById("edit-modal");
 const editInput = document.getElementById("edit-input");
 const editMemo = document.getElementById("edit-memo");
 const editDateTime = document.getElementById("edit-datetime");
+const editBtn = document.getElementById("edit-btn");
 
 const listModal = document.getElementById("list-modal");
 const listNameInput = document.getElementById("list-name-input");
 const listColorInput = document.getElementById("list-color-input");
-const saveListBtn = document.getElementById("save-list-btn");
-const listCloseBtn = document.querySelector(".list-close-btn");
+const addListBtn = document.getElementById("add-list-btn");
+const addlistCloseBtn = document.getElementById("add-list-close-modal-btn");
 
 const emptyMessage = document.getElementById("empty-message");
 const listContextMenu = document.getElementById("list-context-menu");
@@ -41,7 +46,7 @@ const editListModal = document.getElementById("edit-list-modal");
 const editListNameInput = document.getElementById("edit-list-name-input");
 const editListColorInput = document.getElementById("edit-list-color-input");
 const editListBtn = document.getElementById("edit-list-btn");
-const editListCloseBtn = document.querySelector(".edit-list-close-btn");
+const editListCloseBtn = document.getElementById("edit-list-close-modal-btn");
 
 let currentTodo = null;
 let sortable = null;
@@ -190,29 +195,51 @@ function createEditBtn(todo, textWrapper) {
 }
 
 // ============================
-// タスクの追加
+// タスク作成モーダルを開く
 // ============================
-addBtn.addEventListener("click", () => {
-    const title = inputTitle.value.trim();
+openAddTodoMoalBtn.addEventListener("click", () => {
+	addTodoInput.value = "";
+    addTodoMemo.value = "";
+    addTodoDateTime.value = "";
+    addTodoModal.classList.remove("hidden");
+});
+
+// ============================
+// タスク作成モーダル閉じる
+// ============================
+addTodoCloseBtn?.addEventListener("click", () => {
+    addTodoModal.classList.add("hidden");
+});
+
+// ============================
+// タスクの作成
+// ============================
+addTodoBtn?.addEventListener("click", () => {
+    const title = addTodoInput.value.trim();
+    const memo = addTodoMemo.value.trim();
+    const dateTime = addTodoDateTime.value.trim();
     if (!title) return;
 
-    if (currentListId == null) {
-        alert("リストを選択してください");
-        return;
-    }
-
-    fetch("/todos", {
+    fetch(`/todos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            title,
-            listId: currentListId
-        })
-    }).then(() => {
-        inputTitle.value = "";
+        body: JSON.stringify({ title, memo, dateTime, listId: currentListId})
+    })
+    .then(res => res.json())
+    .then(() => {
         fetchTodos();
+        addTodoModal.classList.add("hidden");
     });
 });
+
+// ============================
+// タスクの作成モーダルの入力内容をリセット
+// ============================
+function resetAddTodoForm() {
+    addTodoInput.value = "";
+    addTodoMemo.value = "";
+    addTodoDateTime.value = "";
+}
 
 
 // ============================
@@ -238,7 +265,7 @@ function editTodo(todo) {
 // ============================
 // タスクの編集モーダル閉じる
 // ============================
-editCloseBtn?.addEventListener("click", () => {
+editTodoCloseBtn?.addEventListener("click", () => {
     editModal.classList.add("hidden");
 });
 
@@ -299,7 +326,6 @@ document.getElementById("bulk-delete")?.addEventListener("click", () => {
 	deleteMode = true;
     selectedTaskIds.clear();
     actionMenu?.classList.add("hidden");
-    inputWrapper.classList.add("fade-hidden");
 
     fetchTodos();
     updateFooter();
@@ -309,7 +335,6 @@ document.getElementById("bulk-done")?.addEventListener("click", () => {
 	bulkMode = true;
 	doneMode = true;
     actionMenu?.classList.add("hidden");
-    inputWrapper.classList.add("fade-hidden");
     
     fetchTodos();
     updateFooter();
@@ -319,19 +344,21 @@ document.getElementById("bulk-done")?.addEventListener("click", () => {
 // ヘッダーの更新
 // ============================
 function updateHeader() {
-	
+	console.log(selectedLists);
     if (selectedLists) {
 		emptyMessage.classList.add("hidden");
-		inputWrapper.style.display = "flex";
 		if(bulkMode){
 			menuBtn.style.display = "none";
+			openAddTodoMoalBtn.classList.add("hidden");
 		}else if(hasTasks){
 			menuBtn.style.display = "block";
+			openAddTodoMoalBtn.classList.remove("hidden");
 		} else {
 	        menuBtn.style.display = "none";
+	        openAddTodoMoalBtn.classList.remove("hidden");
 	    }
     } else {
-		inputWrapper.style.display = "none";
+		openAddTodoMoalBtn.classList.add("hidden");
         menuBtn.style.display = "none";
         emptyMessage.classList.remove("hidden");
         if(hasLists){
@@ -365,8 +392,8 @@ footerDeleteBtn?.addEventListener("click", () => {
     selectedTaskIds.clear();
     bulkMode = false;
     deleteMode = false;
-    inputWrapper.classList.remove("fade-hidden");
     fetchTodos();
+    updateHeader();
     updateFooter();
 });
 
@@ -374,8 +401,9 @@ footerDoneBtn?.addEventListener("click", () => {
 	updateAllTodoStatus(true);
     bulkMode = false;
     doneMode = false;
-    inputWrapper.classList.remove("fade-hidden");
+    openAddTodoMoalBtn.classList.remove("hidden");
     fetchTodos();
+    updateHeader();
     updateFooter();
 });
 
@@ -383,7 +411,7 @@ footerNotDoneBtn?.addEventListener("click", () => {
 	updateAllTodoStatus(false);
     bulkMode = false;
     doneMode = false;
-    inputWrapper.classList.remove("fade-hidden");
+    openAddTodoMoalBtn.classList.remove("hidden");
     fetchTodos();
     updateFooter();
 });
@@ -397,7 +425,7 @@ footerCancelBtns.forEach(btn => {
         }else{
 			doneMode = false;
 		}
-        inputWrapper.classList.remove("fade-hidden");
+        openAddTodoMoalBtn.classList.remove("hidden");
         fetchTodos();
         updateFooter();
     });
@@ -518,22 +546,24 @@ function fetchLists() {
 // ============================
 // リスト作成モーダルを開く
 // ============================
-document.getElementById("add-list-btn").addEventListener("click", () => {
+document.getElementById("open-add-list-modal-btn").addEventListener("click", () => {
+	listNameInput.value = "";
+    listColorInput.value = "#4f46e5";
     listModal.classList.remove("hidden");
 });
 
 // ============================
 // リスト作成モーダルを閉じる
 // ============================
-listCloseBtn?.addEventListener("click", () => {
+addlistCloseBtn?.addEventListener("click", () => {
     listModal.classList.add("hidden");
 });
 
 
 // ============================
-// リストの追加
+// リストの作成
 // ============================
-saveListBtn.addEventListener("click", () => {
+addListBtn.addEventListener("click", () => {
 
     const name = listNameInput.value.trim();
     const color = listColorInput.value;
@@ -555,9 +585,6 @@ saveListBtn.addEventListener("click", () => {
 	        "currentListId",
 	        currentListId
 	    );
-	
-	    listNameInput.value = "";
-	
 	    listModal.classList.add("hidden");
 	
 	    fetchLists();
@@ -584,11 +611,8 @@ editListMenuBtn.addEventListener("click", async () => {
     if (!targetList) return;
 
     editingList = targetList;
-
     editListNameInput.value = targetList.name;
-
     editListColorInput.value = targetList.color;
-
     editListModal.classList.remove("hidden");
 
     closeListContextMenu();

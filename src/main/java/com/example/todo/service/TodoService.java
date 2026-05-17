@@ -47,7 +47,7 @@ public class TodoService {
 
     // 保存
     @Transactional
-    public TodoResponse create(String title, Long listId) {
+    public TodoResponse create(String title, String memo, LocalDateTime dateTime, Long listId) {
         List<Todo> todos = todoRepository.findAllByOrderByDisplayOrderAsc();
         TodoList list = todoListRepository.findById(listId).orElseThrow();
 
@@ -60,6 +60,8 @@ public class TodoService {
         Todo newTodo = new Todo();
         newTodo.setTitle(title);
         newTodo.setDone(false);
+        newTodo.setMemo(memo);
+        newTodo.setDateTime(dateTime);
         newTodo.setDisplayOrder(0);
         newTodo.setList(list);
         newTodo.setNotified(false);
