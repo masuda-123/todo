@@ -44,6 +44,7 @@ const editListColorInput = document.getElementById("edit-list-color-input");
 const editListBtn = document.getElementById("edit-list-btn");
 const editListCloseBtn = document.getElementById("edit-list-close-modal-btn");
 
+let isSaving = false;
 let selectedTodoId = null;
 let sortable = null;
 let contextTargetListId = null;
@@ -264,6 +265,7 @@ function showTodoDetail(todo) {
 // ============================
 function startInlineEdit({element, value, field, todo, type = "text"}) {
 
+	let isSaving = false;
     const input = document.createElement("input");
     input.type = type;
     input.value = value || "";
@@ -271,15 +273,14 @@ function startInlineEdit({element, value, field, todo, type = "text"}) {
     element.replaceWith(input);
     
     input.focus();
+    input.addEventListener("input", () => {
+    	input.classList.remove("input-error");
+}	);
     input.addEventListener("blur", save);
     input.addEventListener("keydown", (e) => {
 
         if (e.key === "Enter") {
             input.blur();
-        }
-
-        if (e.key === "Escape") {
-            showTodoDetail(todo);
         }
     });
 
@@ -288,32 +289,49 @@ function startInlineEdit({element, value, field, todo, type = "text"}) {
     });
     
     function save() {
-		const newValue = input.value;
-        fetch(`/todos/${todo.id}`, {
-		    method: "PATCH",
-		    headers: {
-		        "Content-Type": "application/json"
-		    },
-		    body: JSON.stringify({
-		        title:
-		            field === "title" ? newValue : todo.title,
-		
-		        memo:
-		            field === "memo" ? newValue : todo.memo,
-		
-		        dateTime:
-		            field === "dateTime" ? newValue : todo.dateTime
-		    })
-		})
-        .then(() => {
 
-            todo[field] = newValue;
+	    if (isSaving) return;
+	
+	    isSaving = true;
+	
+	    const newValue = input.value.trim();
+	
+	    if (field === "title" && !newValue) {
+	
+	        input.classList.add("input-error");
+	
+	        input.focus();
+	
+	        isSaving = false;
+	
+	        return;
+	    }
 
-            showTodoDetail(todo);
-
-            fetchTodos();
-        });
-    }
+	    fetch(`/todos/${todo.id}`, {
+	        method: "PATCH",
+	        headers: {
+	            "Content-Type": "application/json"
+	        },
+	        body: JSON.stringify({
+	            title:
+	                field === "title" ? newValue : todo.title,
+	
+	            memo:
+	                field === "memo" ? newValue : todo.memo,
+	
+	            dateTime:
+	                field === "dateTime" ? newValue : todo.dateTime
+	        })
+	    })
+	    .then(() => {
+	
+	        todo[field] = newValue;
+	
+	        showTodoDetail(todo);
+	
+	        fetchTodos();
+	    });
+	}
 }
 
 // ============================

@@ -525,3 +525,14 @@ label{
 .editable-datetime:hover {
     background: #f5f5f5;
 }
+
+.input-error {
+    border: 1px solid #ef4444;
+}
+
+.input-error:focus {
+    border: 1px solid #ef4444;
+    outline: none;
+
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
