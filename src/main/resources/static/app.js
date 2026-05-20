@@ -204,12 +204,14 @@ function showTodoDetail(todo) {
             ${todo.memo || "＋ メモを追加"}
         </span>
     `;
-
-	const formattedDateTime = formatDateTime(todo.dateTime);
+    
+    const formattedDateTime = todo.dateTime
+    ? formatDateTime(todo.dateTime)
+    : "＋ 日時を追加";
 	
 	detailTaskDateTime.innerHTML = `
 	    <span class="editable-datetime">
-	        ${formattedDateTime || "＋ 日時を追加"}
+	        ${formattedDateTime}
 	    </span>
 	`;
     
