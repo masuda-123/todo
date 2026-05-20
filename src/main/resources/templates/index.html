@@ -11,13 +11,13 @@
 		<div class="app-layout">
 	        <aside class="sidebar">
 	            <div class="sidebar-header">
-	                <h2>リスト</h2>
+	                <h3>リスト</h3>
 	            </div>
-	            <ul id="list-sidebar">
-	            </ul>
-	            <button class="open-modal-btn" id="open-add-list-modal-btn">
+	           	<button class="open-modal-btn" id="open-add-list-modal-btn">
 	                ＋ 新規リスト
 	            </button>
+	            <ul id="list-sidebar">
+	            </ul>
 	        </aside>
 	        <main class="main-content">
 				<div class="content-wrapper">
@@ -58,6 +58,12 @@
 					</div>
 				</div>
 			</main>
+			<aside class="detail-panel" id="detail-panel">
+				<h3>タスク詳細</h3>
+        		<h2 id="detail-title"></h2>
+        		<p id="detail-memo"></p>
+        		<p id="detail-datetime"></p>
+    		</aside>
 		</div>
 		<div id="add-todo-modal" class="modal hidden">
 			<div class="modal-content">
@@ -77,27 +83,6 @@
 				</div>
 				<div class="modal-actions">
 					<button id="add-todo-btn">保存する</button>
-				</div>
-			</div>
-		</div>
-		<div id="edit-modal" class="modal hidden">
-			<div class="modal-content">
-				<button id="edit-todo-close-modal-btn" class="close-modal-btn">&times;</button>
-				<h3>タスクの編集</h3>
-				<div class="task-name-row">
-					<label>タスク名</label>
-					<input id="edit-input" class="modal-title" type="text" maxlength="50" />
-				</div>
-				<div class="memo-row">
-					<label>メモ</label>
-					<textarea id="edit-memo" class="modal-memo" maxlength="1000" placeholder="メモを入力"></textarea>
-				</div>
-				<div class="datetime-row">
-					<label>日時</label>
-					<input type="datetime-local" id="edit-datetime">
-				</div>
-				<div class="modal-actions">
-					<button id="edit-btn">保存する</button>
 				</div>
 			</div>
 		</div>

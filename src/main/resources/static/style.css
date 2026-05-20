@@ -2,6 +2,12 @@
 
 body{
 	background-color: #f9f9f9;
+	    margin: 0;
+}
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
 }
 
 .main-content {
@@ -9,6 +15,7 @@ body{
     display: flex;
     justify-content: center;
     position: relative;
+    min-height: 100vh;
 }
 
 .content-wrapper {
@@ -36,17 +43,8 @@ ul li {
     gap:10px
 }
 
-#open-add-list-modal-btn{
-	width: 100%;
-    border-radius: 12px;
-    padding: 12px;
-    font-size: 15px;
-    cursor: pointer;
-    text-align: center;
-	margin-top: 20px;
-	border: none;
-	background: #000000;
-    color: white;
+.todo-item.selected {
+    background: #e8f0fe;
 }
 
 #open-add-todo-modal-btn {
@@ -54,7 +52,7 @@ ul li {
 
     bottom: 20px;
 
-    left: calc(260px + ((100vw - 250px) / 2));
+    left: calc(300px + ((100vw - 300px - 300px) / 2));
     transform: translateX(-50%);
 
     width: 60px;
@@ -214,7 +212,7 @@ button:hover {
 .selection-footer-delete-mode {
   position: fixed;
   bottom: 20px;
-  left: calc(260px + ((100vw - 250px) / 2));
+  left: calc(300px + ((100vw - 300px - 300px) / 2));
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
@@ -228,7 +226,7 @@ button:hover {
 .selection-footer-done-mode {
   position: fixed;
   bottom: 20px;
-  left: calc(260px + ((100vw - 250px) / 2));
+  left: calc(300px + ((100vw - 300px - 300px) / 2));
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
@@ -389,37 +387,40 @@ label{
 }
 
 
-.app-layout {
-    display: flex;
-    height: 100vh;
-}
-
-
 .sidebar {
-    width: 260px;
-
+    width: 300px;
     background: white;
-
     border-right: 1px solid #e5e5e5;
-
     padding: 20px;
-
     box-sizing: border-box;
+    min-height: 100vh;
 }
 
 
-.sidebar-header h2 {
+.sidebar-header h3, .detail-panel h3 {
     margin-top: 0;
-
-    font-size: 24px;
+    font-size: 15px;
+    color: #777;
 }
 
 
 #list-sidebar {
     list-style: none;
-
     padding: 0;
     margin: 0;
+}
+
+#open-add-list-modal-btn{
+	width: 100%;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+	margin-bottom: 20px;
+	border: none;
+	background: #000000;
+    color: white;
 }
 
 #list-sidebar li {
@@ -445,9 +446,6 @@ label{
     font-weight: 600;
 }
 
-body {
-    margin: 0;
-}
 
 #empty-message {
     text-align: center;
@@ -489,4 +487,41 @@ body {
 
 .danger {
     color: #ef4444;
+}
+
+.detail-panel {
+    width: 300px;
+    border-left: 1px solid #ddd;
+    padding: 20px;
+    background: #fff;
+}
+
+#detail-title input {
+	font-size: 23px;	
+	padding: 8px 10px;
+    border-radius: 10px;
+    display: block;
+}
+
+#detail-memo input, #detail-datetime input {
+	font-size: 16px;
+	padding: 8px 10px;
+    border-radius: 10px;
+    display: block;
+}
+
+.editable-title,
+.editable-memo,
+.editable-datetime {
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: block;
+}
+
+.editable-title:hover,
+.editable-memo:hover,
+.editable-datetime:hover {
+    background: #f5f5f5;
 }
