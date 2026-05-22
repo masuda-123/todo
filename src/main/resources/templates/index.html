@@ -22,29 +22,27 @@
 	        <main class="main-content">
 				<div class="content-wrapper">
 					<div class="header-wrapper">
-						<h2 id="current-list-title">
-							Todo タスク
-						</h2>
-						<div id="menu-wrapper" class="menu-wrapper">
-							<button id="menu-btn" class="icon-btn" title="メニュー">
-								<i class="fa-solid fa-bars"></i>
-							</button>
-							<div id="action-menu" class="action-menu hidden">
-								<button id="bulk-done">
-	    							<i class="fa-solid fa-check"></i>
-	    								ステータス変更 
-								</button>
-								<button id="bulk-delete" class="danger">
-	    							<i class="fa-solid fa-trash"></i>
-	    								 削除 
-								</button>
-							</div>
-						</div>
+					    <div class="header-left">
+					        <button id="menu-btn" class="icon-btn" title="メニュー">
+					            <i class="fa-solid fa-bars"></i>
+					        </button>
+					        <div id="action-menu" class="action-menu hidden">
+					            <button id="bulk-done">
+					                <i class="fa-solid fa-check"></i> ステータス変更
+					            </button>
+					            <button id="bulk-delete" class="danger">
+					                <i class="fa-solid fa-trash"></i> 削除
+					            </button>
+					        </div>
+					    </div>
+					    <h2 id="current-list-title">
+					        Todo タスク
+					    </h2>
+					    <button id="open-add-todo-modal-btn"><i class="fa-solid fa-plus"></i></button>
 					</div>
 					<div id="empty-message" class="hidden">
 						リストを作成してください
 					</div>
-					<button id="open-add-todo-modal-btn">＋</button>
 					<ul id="todo-list"></ul>
 					<div id="selection-footer-delete-mode" class="selection-footer-delete-mode hidden">
 					    <button id="footer-delete">削除する</button>

@@ -603,13 +603,9 @@ function fetchLists() {
 				
 				    listContextMenu.classList.remove("hidden");
 				});
-                li.innerHTML = `
-				    <span style="display:inline-block;
-				                 width:10px;
-				                 height:10px;
-				                 background:${list.color};
-				                 border-radius:50%;
-				                 margin-right:6px;"></span>
+				li.innerHTML = `
+				    <i class="fa-solid fa-list list-icon"
+				       style="color:${list.color};"></i>
 				    ${list.name}
 				`;
 				
