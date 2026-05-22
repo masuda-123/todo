@@ -421,7 +421,10 @@ label{
     border-right: 1px solid #e5e5e5;
     padding: 20px;
     box-sizing: border-box;
-    min-height: 100vh;
+    
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 
@@ -433,9 +436,14 @@ label{
 
 
 #list-sidebar {
+    flex: 1;
+    overflow-y: auto;
+
+    min-height: 0;
     list-style: none;
     padding: 0;
     margin: 0;
+    padding-right: 15px;
 }
 
 #open-add-list-modal-btn{
