@@ -33,8 +33,9 @@ public class TodoService {
             todo.getMemo(),
             todo.getDateTime(),
             todo.isNotified(),
-            todo.getList().getColor()
-        );
+            todo.getList().getColor(),
+            todo.getList().getId()
+            );
     }
 
     // 全件取得

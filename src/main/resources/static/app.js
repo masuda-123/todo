@@ -22,9 +22,9 @@ const addTodoMemo = document.getElementById("add-todo-memo");
 const addTodoDateTime = document.getElementById("add-todo-datetime");
 const addTodoBtn = document.getElementById("add-todo-btn");
 
-const detailTaskTitle = document.getElementById("detail-title");
-const detailTaskMemo = document.getElementById("detail-memo");
-const detailTaskDateTime = document.getElementById("detail-datetime");
+const detailTodoTitle = document.getElementById("detail-title");
+const detailTodoMemo = document.getElementById("detail-memo");
+const detailTodoDateTime = document.getElementById("detail-datetime");
 
 const sidebar = document.getElementById("list-sidebar");
 const listModal = document.getElementById("list-modal");
@@ -45,6 +45,7 @@ const editListColorInput = document.getElementById("edit-list-color-input");
 const editListBtn = document.getElementById("edit-list-btn");
 const editListCloseBtn = document.getElementById("edit-list-close-modal-btn");
 
+let todoCache = [];
 let isSaving = false;
 let selectedTodoId = null;
 let todoSortable = null;
@@ -195,14 +196,23 @@ function formatDateTime(dateTime) {
 // 各タスクの詳細画面
 // ============================
 function showTodoDetail(todo) {
+	
+	if (!todo) {
+		selectedTodoId = null;
+        detailTodoTitle.textContent = "";
+        detailTodoMemo.textContent = "";
+        detailTodoDateTime.textContent = "";
 
-	detailTaskTitle.innerHTML = `
+        return;
+    }
+
+	detailTodoTitle.innerHTML = `
         <span class="editable-title">
             ${todo.title || "タイトルなし"}
         </span>
     `;
 
-    detailTaskMemo.innerHTML = `
+    detailTodoMemo.innerHTML = `
         <span class="editable-memo">
             ${todo.memo || "＋ メモを追加"}
         </span>
@@ -212,13 +222,13 @@ function showTodoDetail(todo) {
     ? formatDateTime(todo.dateTime)
     : "＋ 日時を追加";
 	
-	detailTaskDateTime.innerHTML = `
+	detailTodoDateTime.innerHTML = `
 	    <span class="editable-datetime">
 	        ${formattedDateTime}
 	    </span>
 	`;
     
-    detailTaskTitle
+    detailTodoTitle
         .querySelector(".editable-title")
         .addEventListener("click", (e) => {
 
@@ -232,7 +242,7 @@ function showTodoDetail(todo) {
             });
         });
 
-    detailTaskMemo
+    detailTodoMemo
         .querySelector(".editable-memo")
         .addEventListener("click", (e) => {
 
@@ -246,7 +256,7 @@ function showTodoDetail(todo) {
             });
         });
 
-    detailTaskDateTime
+    detailTodoDateTime
         .querySelector(".editable-datetime")
         .addEventListener("click", (e) => {
 
@@ -389,7 +399,10 @@ function resetAddTodoForm() {
 // ============================
 function deleteTodo(id) {
     fetch(`/todos/${id}`, { method: "DELETE" })
-        .then(() => fetchTodos());
+        .then(() => {
+        	fetchTodos();
+        	if (selectedTodoId === id) { showTodoDetail(null); }
+        });
 }
 
 // ============================
@@ -446,7 +459,6 @@ document.getElementById("bulk-done")?.addEventListener("click", () => {
 // ヘッダーの更新
 // ============================
 function updateHeader() {
-	console.log(selectedLists);
     if (selectedLists) {
 		emptyMessage.classList.add("hidden");
 		if(bulkMode){
@@ -755,6 +767,9 @@ deleteListMenuBtn.addEventListener("click", async () => {
     );
 
     if (!confirmed) return;
+    const selectedTodo = todoCache.find(
+        todo => todo.id === selectedTodoId
+    );
 
     await fetch(`/lists/${contextTargetListId}`, {
         method: "DELETE"
@@ -775,6 +790,11 @@ deleteListMenuBtn.addEventListener("click", async () => {
 	    
 	    document.getElementById("current-list-title").style.color = "#000000";
 	}
+	
+    if (selectedTodo?.listId === contextTargetListId) {
+
+        showTodoDetail(null);
+    }
 
     closeListContextMenu();
 
