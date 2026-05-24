@@ -76,4 +76,11 @@ public class TodoListController {
 
         todoService.updateAllStatus(id, done);
     }
+    
+    // タスクの並び替え
+    @PatchMapping("/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reorderTodos(@RequestBody List<Long> orderedIds) {
+        todoListService.updateOrder(orderedIds);
+    }
 }

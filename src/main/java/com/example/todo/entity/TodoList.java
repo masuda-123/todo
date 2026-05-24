@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,6 +21,9 @@ public class TodoList {
     private String name;
     
     private String color;
+    
+	@Column(name = "display_order")
+	private Integer displayOrder;
     
     @OneToMany(
             mappedBy = "list",
@@ -47,5 +51,8 @@ public class TodoList {
 	public void setColor(String color) {
 	    this.color = color;
 	}
+	
+    public Integer getDisplayOrder() { return displayOrder; }
+    public void setDisplayOrder(Integer displayOrder) { this.displayOrder = displayOrder; }
     
 }

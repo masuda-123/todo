@@ -28,7 +28,7 @@ public class TodoListService {
     
     // 全件取得
     public List<TodoListResponse> findAll() {
-        return todoListRepository.findAll()
+        return todoListRepository.findAllByOrderByDisplayOrderAsc()
         	.stream()
             .map(this::toResponse)
             .toList();
@@ -37,12 +37,13 @@ public class TodoListService {
     // 保存
     @Transactional
     public TodoListResponse create(String name, String color) {
-        List<TodoList> lists = todoListRepository.findAll();
+        List<TodoList> lists = todoListRepository.findAllByOrderByDisplayOrderAsc();
         
         // 新規Todoを保存
         TodoList newList = new TodoList();
         newList.setName(name);
         newList.setColor(color);
+        newList.setDisplayOrder(lists.size()+1);
         todoListRepository.save(newList);
 
         return toResponse(newList);
@@ -68,6 +69,19 @@ public class TodoListService {
         	.orElseThrow(() -> new TodoNotFoundException(id));
 
         todoListRepository.delete(list);
+    }
+    
+    // リストの並び替え
+    @Transactional
+    public void updateOrder(List<Long> orderedIds) {
+    	
+        for (int i = 0; i < orderedIds.size(); i++) {
+
+            TodoList list = todoListRepository.findById(orderedIds.get(i))
+                    .orElseThrow();
+
+            list.setDisplayOrder(i);
+        }
     }
 
 }

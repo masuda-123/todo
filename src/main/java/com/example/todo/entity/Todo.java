@@ -53,7 +53,6 @@ public class Todo {
     public void setDone(boolean done) { this.done = done; }
     
     public Integer getDisplayOrder() { return displayOrder; }
-
     public void setDisplayOrder(Integer displayOrder) { this.displayOrder = displayOrder; }
     
     public String getMemo() { return memo; }

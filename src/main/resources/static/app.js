@@ -26,6 +26,7 @@ const detailTaskTitle = document.getElementById("detail-title");
 const detailTaskMemo = document.getElementById("detail-memo");
 const detailTaskDateTime = document.getElementById("detail-datetime");
 
+const sidebar = document.getElementById("list-sidebar");
 const listModal = document.getElementById("list-modal");
 const listNameInput = document.getElementById("list-name-input");
 const listColorInput = document.getElementById("list-color-input");
@@ -46,7 +47,8 @@ const editListCloseBtn = document.getElementById("edit-list-close-modal-btn");
 
 let isSaving = false;
 let selectedTodoId = null;
-let sortable = null;
+let todoSortable = null;
+let listSortable
 let contextTargetListId = null;
 let editingList = null;
 let deletingList = null;
@@ -133,7 +135,7 @@ function fetchTodos() {
 				}
                 todoList.appendChild(li);
             });
-            initSortable();
+            initTodoSortable();
         })
         .catch(err => console.error(err));
 }
@@ -532,25 +534,25 @@ footerCancelBtns.forEach(btn => {
 });
 
 // ============================
-// 並び替え
+// タスクの並び替え
 // ============================
-function initSortable() {
+function initTodoSortable() {
 
     if (bulkMode) {
 
-        if (sortable) {
-            sortable.destroy();
-            sortable = null;
+        if (todoSortable) {
+            todoSortable.destroy();
+            todoSortable = null;
         }
 
         return;
     }
 
-    if (sortable) {
-        sortable.destroy();
+    if (todoSortable) {
+        todoSortable.destroy();
     }
 
-    sortable = new Sortable(todoList, {
+    todoSortable = new Sortable(todoList, {
         animation: 150,
 
         ghostClass: "sortable-ghost",
@@ -584,14 +586,11 @@ function fetchLists() {
 			
 			selectedLists = (currentListId != null);
 
-            const sidebar =
-                document.getElementById("list-sidebar");
-
             sidebar.innerHTML = "";
 
             data.forEach(list => {
 				const li = document.createElement("li");
-				
+				li.id = `list-${list.id}`;
 				li.addEventListener("contextmenu", (e) => {
 				    e.preventDefault();
 				    e.stopPropagation();
@@ -636,6 +635,7 @@ function fetchLists() {
 			    	fetchTodos();
 			    });
         	});
+        	initListSortable();
         });
 }
 
@@ -801,6 +801,34 @@ listContextMenu.addEventListener("click", (e) => {
     e.stopPropagation();
 });
 
+// ============================
+// リストの並び替え
+// ============================
+function initListSortable() {
+	
+	if (listSortable) {
+        listSortable.destroy();
+    }
+
+    listSortable = new Sortable(sidebar, {
+        animation: 150,
+
+        onEnd: () => {
+
+            const orderedIds = [...sidebar.children].map(li =>
+                Number(li.id.replace("list-", ""))
+            );
+
+            fetch("/lists/reorder", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(orderedIds)
+            });
+        }
+    });
+}
 
 // ============================
 // タスクの通知を出す
