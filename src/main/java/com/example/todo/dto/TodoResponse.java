@@ -11,23 +11,25 @@ public class TodoResponse {
     private boolean done;
     private String memo;
     private LocalDateTime dateTime;
+    private boolean notify;
     private boolean notified;
     private String listColor;
     private Long listId;
 
-    public TodoResponse(Long id, String title, boolean done, String memo, LocalDateTime dateTime, boolean notified, String listColor, Long listId) {
+    public TodoResponse(Long id, String title, boolean done, String memo, LocalDateTime dateTime, boolean notify, boolean notified, String listColor, Long listId) {
         this.id = id;
         this.title = title;
         this.done = done;
         this.memo = memo;
         this.dateTime = dateTime;
+        this.notify = notify;
         this.notified = notified;
         this.listColor = listColor;
         this.listId = listId;
     }
     
     public static TodoResponse from(Todo todo){
-    	return new TodoResponse(todo.getId(), todo.getTitle(), todo.isDone(), todo.getMemo(), todo.getDateTime(), todo.isNotified(), todo.getList().getColor(), todo.getList().getId());
+    	return new TodoResponse(todo.getId(), todo.getTitle(), todo.isDone(), todo.getMemo(), todo.getDateTime(),todo.isNotify(), todo.isNotified(), todo.getList().getColor(), todo.getList().getId());
     }
 
     public Long getId() { return id; }
@@ -35,6 +37,7 @@ public class TodoResponse {
     public boolean isDone() { return done; }
     public String getMemo() { return memo; }
     public LocalDateTime getDateTime() { return dateTime; }
+    public boolean isNotify() { return notify; }
     public boolean isNotified() { return notified; }
     public String getListColor() { return listColor; }
     public Long getListId() { return listId; }

@@ -34,6 +34,8 @@ public class Todo {
 	@Column(name = "date_time")
 	private LocalDateTime dateTime;
 	
+	private boolean notify;
+	
 	@Column
 	private boolean notified;
 	
@@ -60,6 +62,9 @@ public class Todo {
     
     public LocalDateTime getDateTime() { return dateTime; }
     public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
+    
+    public boolean isNotify() { return notify; }
+    public void setNotify(boolean notify) { this.notify = notify; }
     
     public boolean isNotified() { return notified; }
     public void setNotified(boolean notified) { this.notified = notified; }

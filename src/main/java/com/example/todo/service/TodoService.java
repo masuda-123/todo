@@ -32,6 +32,7 @@ public class TodoService {
             todo.isDone(),
             todo.getMemo(),
             todo.getDateTime(),
+            todo.isNotify(),
             todo.isNotified(),
             todo.getList().getColor(),
             todo.getList().getId()
@@ -48,7 +49,7 @@ public class TodoService {
 
     // 保存
     @Transactional
-    public TodoResponse create(String title, String memo, LocalDateTime dateTime, Long listId) {
+    public TodoResponse create(String title, String memo, LocalDateTime dateTime, boolean notify, Long listId) {
         List<Todo> todos = todoRepository.findAllByOrderByDisplayOrderAsc();
         TodoList list = todoListRepository.findById(listId).orElseThrow();
 
@@ -63,6 +64,7 @@ public class TodoService {
         newTodo.setDone(false);
         newTodo.setMemo(memo);
         newTodo.setDateTime(dateTime);
+        newTodo.setNotify(notify);
         newTodo.setDisplayOrder(0);
         newTodo.setList(list);
         newTodo.setNotified(false);
@@ -89,7 +91,7 @@ public class TodoService {
     }
     
     // 1件のタスクの更新
-    public TodoResponse update(Long id, String title, String memo, LocalDateTime dateTime) {
+    public TodoResponse update(Long id, String title, String memo, LocalDateTime dateTime, boolean notify) {
 
         Todo todo = todoRepository.findById(id)
         	.orElseThrow(() -> new TodoNotFoundException(id));
@@ -97,6 +99,11 @@ public class TodoService {
         todo.setTitle(title);
         todo.setMemo(memo);
         todo.setDateTime(dateTime);
+        todo.setNotify(notify);
+        
+        if (notify &&dateTime != null && dateTime.isAfter(LocalDateTime.now())) {
+        	todo.setNotified(false);
+        }
 
         return toResponse(todoRepository.save(todo));
     }

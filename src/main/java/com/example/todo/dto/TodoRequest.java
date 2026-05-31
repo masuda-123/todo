@@ -15,6 +15,8 @@ public class TodoRequest {
     
     private LocalDateTime dateTime;
     
+    private boolean notify;
+    
     private Long listId;
     
     // テスト用のコンストラクタ
@@ -44,6 +46,14 @@ public class TodoRequest {
     
     public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
+    }
+    
+    public boolean isNotify() {
+    	return notify;
+    }
+    
+    public void setNotify(boolean notify) {
+    	this.notify = notify;
     }
     
     public Long getListId() {

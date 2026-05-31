@@ -182,14 +182,19 @@ ul li:hover {
     word-break: break-word;
 }
 
-#todo-title {
-  flex: 1;
+.todo-memo, .todo-datetime {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.4;
+    white-space: pre-wrap;
 }
 
-.btn-wrapper {
-    display: flex;
-    justify-content: space-between;
-    gap:10px;
+.todo-memo {
+    white-space: pre-wrap;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
 }
 
 .todo-checkbox {
@@ -382,7 +387,6 @@ input[type="checkbox"] {
 
 .task-name-row, .memo-row,  .datetime-row, .list-name-row, .color-row{
 	display: flex;
-	justify-content: space-between;
 	margin-bottom: 10px;
 	gap: 10px;
 	font-size: 13px;
@@ -403,16 +407,6 @@ label{
 
 .color-row input{
 	margin-right: auto;
-}
-
-.todo-memo, .todo-datetime {
-    font-size: 13px;
-
-    color: #777;
-
-    line-height: 1.4;
-
-    white-space: pre-wrap;
 }
 
 
@@ -527,16 +521,27 @@ label{
     display: block;
 }
 
-#detail-memo input, #detail-datetime input {
+#detail-memo textarea, #detail-datetime input {
 	font-size: 16px;
 	padding: 8px 10px;
     border-radius: 10px;
     display: block;
 }
 
+#detail-memo textarea{
+	height: 80px;
+	max-width: 100%;
+}
+
+.detail-label{
+	padding: 8px 10px;
+	font-size: 13px;
+}
+
 .editable-title,
 .editable-memo,
-.editable-datetime {
+.editable-datetime,
+.editable-notify {
     padding: 8px 10px;
     border-radius: 10px;
     cursor: pointer;
@@ -544,10 +549,22 @@ label{
     display: block;
 }
 
+.editable-memo {
+    white-space: pre-wrap;
+}
+
 .editable-title:hover,
 .editable-memo:hover,
-.editable-datetime:hover {
+.editable-datetime:hover,
+.editable-notify:hover {
     background: #f5f5f5;
+}
+
+.inline-edit-input{
+	width: 100%;
+	padding: 8px 10px;
+	box-sizing: border-box;
+	font-size: 16px;
 }
 
 .input-error {
@@ -559,4 +576,65 @@ label{
     outline: none;
 
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.notify-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+	gap: 10px;
+	font-size: 13px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    background: #ccc;
+    border-radius: 999px;
+    transition: 0.2s;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.switch input:checked + .slider {
+    background: #4CAF50;
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(18px);
+}
+
+.switch input:disabled + .slider {
+    background: #ddd;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+#detail-notify .notify-hint{
+	font-size: 13px;
+	padding: 8px 10px;
 }

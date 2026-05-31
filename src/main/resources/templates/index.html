@@ -61,6 +61,7 @@
         		<h2 id="detail-title"></h2>
         		<p id="detail-memo"></p>
         		<p id="detail-datetime"></p>
+        		<div id="detail-notify"></div>
     		</aside>
 		</div>
 		<div id="add-todo-modal" class="modal hidden">
@@ -78,6 +79,17 @@
 				<div class="datetime-row">
 					<label>日時</label>
 					<input type="datetime-local" id="add-todo-datetime">
+				</div>
+				<div class="notify-row">
+				    <label>通知</label>
+				
+				    <label class="switch">
+				        <input type="checkbox" id="add-todo-notify">
+				        <span class="slider"></span>
+				    </label>
+				    <span class="notify-hint">
+					    ※日時を設定すると通知できます
+					</span>
 				</div>
 				<div class="modal-actions">
 					<button id="add-todo-btn">保存する</button>

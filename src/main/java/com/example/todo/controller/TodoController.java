@@ -44,7 +44,7 @@ public class TodoController {
     // タスク保存
     @PostMapping
     public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { 
-        return todoService.create(request.getTitle(), request.getMemo(), request.getDateTime(), request.getListId());
+        return todoService.create(request.getTitle(), request.getMemo(), request.getDateTime(), request.isNotify(), request.getListId());
     }
     
     // タスク名、メモ、日時更新
@@ -53,7 +53,7 @@ public class TodoController {
             @PathVariable Long id,
             @Valid @RequestBody TodoRequest request) {
 
-        return todoService.update(id, request.getTitle(), request.getMemo(), request.getDateTime());
+        return todoService.update(id, request.getTitle(), request.getMemo(), request.getDateTime(), request.isNotify());
     }
     
     // タスク削除

@@ -20,11 +20,13 @@ const addTodoModal = document.getElementById("add-todo-modal");
 const addTodoInput = document.getElementById("add-todo-input");
 const addTodoMemo = document.getElementById("add-todo-memo");
 const addTodoDateTime = document.getElementById("add-todo-datetime");
+const addTodoNotify = document.getElementById("add-todo-notify");
 const addTodoBtn = document.getElementById("add-todo-btn");
 
 const detailTodoTitle = document.getElementById("detail-title");
 const detailTodoMemo = document.getElementById("detail-memo");
 const detailTodoDateTime = document.getElementById("detail-datetime");
+const detailTodoNotify = document.getElementById("detail-notify");
 
 const sidebar = document.getElementById("list-sidebar");
 const listModal = document.getElementById("list-modal");
@@ -202,30 +204,48 @@ function showTodoDetail(todo) {
         detailTodoTitle.textContent = "";
         detailTodoMemo.textContent = "";
         detailTodoDateTime.textContent = "";
+        detailTodoNotify.textContent = "";
 
         return;
     }
 
 	detailTodoTitle.innerHTML = `
-        <span class="editable-title">
-            ${todo.title || "タイトルなし"}
-        </span>
+        <span class="editable-title">${todo.title || "タイトルなし"}</span>
     `;
 
-    detailTodoMemo.innerHTML = `
-        <span class="editable-memo">
-            ${todo.memo || "＋ メモを追加"}
-        </span>
-    `;
+	detailTodoMemo.innerHTML = `
+	    <label class="detail-label">メモ</label>
+	    <span class="editable-memo">${todo.memo || "＋ メモを追加"}</span>
+	`;
     
     const formattedDateTime = todo.dateTime
     ? formatDateTime(todo.dateTime)
     : "＋ 日時を追加";
 	
 	detailTodoDateTime.innerHTML = `
-	    <span class="editable-datetime">
-	        ${formattedDateTime}
-	    </span>
+	    <label class="detail-label">日時</label>
+	    <span class="editable-datetime">${formattedDateTime}</span>
+	`;
+	
+	const canNotify = !!todo.dateTime;
+	
+	detailTodoNotify.innerHTML = `
+	    <div class="editable-notify">
+	        <span class="detail-label-inline">通知</span>
+	
+	        <label class="switch">
+				<input
+				    type="checkbox"
+				    id="detail-notify-toggle"
+				    ${todo.notify ? "checked" : ""}
+				    ${todo.dateTime ? "" : "disabled"}
+				>
+	            <span class="slider"></span>
+	        </label>
+	    </div>
+	    <span class="notify-hint">
+				 ※日時を設定すると通知できます
+		</span>
 	`;
     
     detailTodoTitle
@@ -243,7 +263,7 @@ function showTodoDetail(todo) {
         });
 
     detailTodoMemo
-        .querySelector(".editable-memo")
+    	.querySelector(".editable-memo")
         .addEventListener("click", (e) => {
 
             e.stopPropagation();
@@ -269,7 +289,13 @@ function showTodoDetail(todo) {
                 todo,
                 type: "datetime-local"
             });
-        });  
+        });
+        
+	detailTodoNotify
+		.querySelector("#detail-notify-toggle")
+		.addEventListener("change", (e) => {
+			toggleNotification(todo, e.target.checked);
+		});
 }
 
 // ============================
@@ -278,8 +304,14 @@ function showTodoDetail(todo) {
 function startInlineEdit({element, value, field, todo, type = "text"}) {
 
 	let isSaving = false;
-    const input = document.createElement("input");
-    input.type = type;
+    const input =
+        field === "memo"
+            ? document.createElement("textarea")
+            : document.createElement("input");
+
+    if (field !== "memo") {
+        input.type = type;
+    }
     input.value = value || "";
     input.classList.add("inline-edit-input");
     element.replaceWith(input);
@@ -287,35 +319,29 @@ function startInlineEdit({element, value, field, todo, type = "text"}) {
     input.focus();
     input.addEventListener("input", () => {
     	input.classList.remove("input-error");
-}	);
+	});
     input.addEventListener("blur", save);
-    input.addEventListener("keydown", (e) => {
-
-        if (e.key === "Enter") {
-            input.blur();
-        }
-    });
+    if (field !== "memo") {
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                input.blur();
+            }
+        });
+    }
 
     input.addEventListener("click", (e) => {
         e.stopPropagation();
     });
     
     function save() {
-
 	    if (isSaving) return;
-	
-	    isSaving = true;
-	
+	    isSaving = true;	
 	    const newValue = input.value.trim();
 	
 	    if (field === "title" && !newValue) {
-	
 	        input.classList.add("input-error");
-	
 	        input.focus();
-	
 	        isSaving = false;
-	
 	        return;
 	    }
 
@@ -332,18 +358,38 @@ function startInlineEdit({element, value, field, todo, type = "text"}) {
 	                field === "memo" ? newValue : todo.memo,
 	
 	            dateTime:
-	                field === "dateTime" ? newValue : todo.dateTime
+	                field === "dateTime" ? newValue : todo.dateTime,
+	            notify: todo.notify
 	        })
 	    })
 	    .then(() => {
-	
 	        todo[field] = newValue;
-	
 	        showTodoDetail(todo);
-	
 	        fetchTodos();
 	    });
 	}
+}
+
+function toggleNotification(todo, checked) {
+
+    fetch(`/todos/${todo.id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: todo.title,
+            memo: todo.memo,
+            dateTime: todo.dateTime,
+            notify: checked
+        })
+    })
+    .then(() => {
+
+        todo.notify = checked;
+        showTodoDetail(todo)
+        fetchTodos();
+    });
 }
 
 // ============================
@@ -353,6 +399,8 @@ openAddTodoMoalBtn.addEventListener("click", () => {
 	addTodoInput.value = "";
     addTodoMemo.value = "";
     addTodoDateTime.value = "";
+    addTodoNotify.checked = false;
+    addTodoNotify.disabled = true;
     addTodoModal.classList.remove("hidden");
 });
 
@@ -363,6 +411,18 @@ addTodoCloseBtn?.addEventListener("click", () => {
     addTodoModal.classList.add("hidden");
 });
 
+addTodoDateTime.addEventListener("input", () => {
+
+    const hasDateTime =
+        addTodoDateTime.value.trim() !== "";
+
+    addTodoNotify.disabled = !hasDateTime;
+
+    if (!hasDateTime) {
+        addTodoNotify.checked = false;
+    }
+});
+
 // ============================
 // タスクの作成
 // ============================
@@ -370,12 +430,13 @@ addTodoBtn?.addEventListener("click", () => {
     const title = addTodoInput.value.trim();
     const memo = addTodoMemo.value.trim();
     const dateTime = addTodoDateTime.value.trim();
+    const notify = addTodoNotify.checked;
     if (!title) return;
 
     fetch(`/todos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, memo, dateTime, listId: currentListId})
+        body: JSON.stringify({ title, memo, dateTime, notify, listId: currentListId})
     })
     .then(res => res.json())
     .then(() => {
@@ -391,6 +452,8 @@ function resetAddTodoForm() {
     addTodoInput.value = "";
     addTodoMemo.value = "";
     addTodoDateTime.value = "";
+    addTodoNotify.checked = false;
+    addTodoNotify.disabled = true;
 }
 
 
