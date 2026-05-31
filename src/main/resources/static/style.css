@@ -11,8 +11,8 @@ body{
 }
 
 .sidebar { width: 20%; }
-.main-content { width: 60%; }
-.detail-panel { width: 20%; }
+.main-content { width: 55%; }
+.detail-panel { width: 25%; }
 
 .main-content {
     flex: 1;
@@ -127,7 +127,7 @@ button:hover {
 
 .content-wrapper {
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
     display: flex;
     flex-direction: column;
 
@@ -512,6 +512,9 @@ label{
     border-left: 1px solid #ddd;
     padding: 20px;
     background: #fff;
+    box-sizing: border-box;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 #detail-title input {
@@ -530,12 +533,12 @@ label{
 
 #detail-memo textarea{
 	height: 80px;
-	max-width: 100%;
 }
 
 .detail-label{
 	padding: 8px 10px;
 	font-size: 13px;
+	color: #777;
 }
 
 .editable-title,
@@ -551,6 +554,8 @@ label{
 
 .editable-memo {
     white-space: pre-wrap;
+    max-height: 50vh;
+    overflow-y: auto;
 }
 
 .editable-title:hover,
@@ -637,4 +642,10 @@ label{
 #detail-notify .notify-hint{
 	font-size: 13px;
 	padding: 8px 10px;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
 }
