@@ -517,24 +517,6 @@ label{
     overflow-y: auto;
 }
 
-#detail-title input {
-	font-size: 23px;	
-	padding: 8px 10px;
-    border-radius: 10px;
-    display: block;
-}
-
-#detail-memo textarea, #detail-datetime input {
-	font-size: 16px;
-	padding: 8px 10px;
-    border-radius: 10px;
-    display: block;
-}
-
-#detail-memo textarea{
-	height: 80px;
-}
-
 .detail-label{
 	padding: 8px 10px;
 	font-size: 13px;
@@ -554,8 +536,6 @@ label{
 
 .editable-memo {
     white-space: pre-wrap;
-    max-height: 50vh;
-    overflow-y: auto;
 }
 
 .editable-title:hover,
@@ -563,6 +543,33 @@ label{
 .editable-datetime:hover,
 .editable-notify:hover {
     background: #f5f5f5;
+}
+
+#detail-title input {
+	font-size: 23px;	
+	padding: 8px 10px;
+    border-radius: 10px;
+    display: block;
+}
+
+#detail-memo textarea, #detail-datetime input {
+	font-size: 16px;
+	padding: 8px 10px;
+    border-radius: 10px;
+    display: block;
+}
+
+#detail-memo textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 0;
+}
+
+.editable-memo,
+#detail-memo textarea {
+    max-height: 50vh;
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .inline-edit-input{

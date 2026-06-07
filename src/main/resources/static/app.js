@@ -308,13 +308,26 @@ function startInlineEdit({element, value, field, todo, type = "text"}) {
         field === "memo"
             ? document.createElement("textarea")
             : document.createElement("input");
-
+    
     if (field !== "memo") {
         input.type = type;
     }
+    
     input.value = value || "";
     input.classList.add("inline-edit-input");
-    element.replaceWith(input);
+    
+    if (field === "memo") {
+    	const height = element.getBoundingClientRect().height;
+    	element.replaceWith(input);
+    	if(height === 40){
+			console.log(height);
+			input.style.height = '120px';
+		} else{
+	    	input.style.height = `${height}px`;
+	    }
+	} else {
+		element.replaceWith(input);
+	}
     
     input.focus();
     input.addEventListener("input", () => {
