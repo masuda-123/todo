@@ -23,6 +23,7 @@ const addTodoDateTime = document.getElementById("add-todo-datetime");
 const addTodoNotify = document.getElementById("add-todo-notify");
 const addTodoBtn = document.getElementById("add-todo-btn");
 
+const detailDeleteTodoBtn = document.getElementById("detail-delete-todo-btn");
 const detailTodoTitle = document.getElementById("detail-title");
 const detailTodoMemo = document.getElementById("detail-memo");
 const detailTodoDateTime = document.getElementById("detail-datetime");
@@ -205,7 +206,7 @@ function showTodoDetail(todo) {
         detailTodoMemo.textContent = "";
         detailTodoDateTime.textContent = "";
         detailTodoNotify.textContent = "";
-
+        detailDeleteTodoBtn.classList.add("hidden");
         return;
     }
 
@@ -247,6 +248,8 @@ function showTodoDetail(todo) {
 				 ※日時を設定すると通知できます
 		</span>
 	`;
+	
+	detailDeleteTodoBtn.classList.remove("hidden");
     
     detailTodoTitle
         .querySelector(".editable-title")
@@ -406,6 +409,16 @@ function toggleNotification(todo, checked) {
 }
 
 // ============================
+// 詳細画面からのタスクの削除
+// ============================
+detailDeleteTodoBtn?.addEventListener("click", () => {
+	if (!confirm("このタスクを削除しますか？")) {
+	  return;
+	 }
+	deleteTodo(selectedTodoId);
+});
+
+// ============================
 // タスク作成モーダルを開く
 // ============================
 openAddTodoMoalBtn.addEventListener("click", () => {
@@ -548,6 +561,7 @@ function updateHeader() {
 	        openAddTodoMoalBtn.classList.remove("hidden");
 	    }
     } else {
+		detailDeleteTodoBtn.classList.add("hidden");
 		openAddTodoMoalBtn.classList.add("hidden");
         menuBtn.style.display = "none";
         emptyMessage.classList.remove("hidden");
