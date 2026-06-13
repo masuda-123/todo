@@ -85,6 +85,9 @@ function fetchTodos() {
 			updateHeader();
             todoList.innerHTML = "";
             data.forEach(todo => {
+				const dragHandle = document.createElement("span");
+				dragHandle.classList.add("drag-handle");
+				dragHandle.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
                 const li = document.createElement("li");
                 li.id = `todo-${todo.id}`;
                 li.classList = "todo-item";
@@ -136,6 +139,7 @@ function fetchTodos() {
 				} else {
 					li.appendChild(createCheckbox(todo));
                     li.appendChild(text);
+                    li.appendChild(dragHandle);
 				}
                 todoList.appendChild(li);
             });
@@ -656,7 +660,7 @@ function initTodoSortable() {
 
     todoSortable = new Sortable(todoList, {
         animation: 150,
-
+        handle: ".drag-handle",
         ghostClass: "sortable-ghost",
         chosenClass: "sortable-chosen",
         onEnd: () => {

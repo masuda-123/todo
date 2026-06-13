@@ -169,10 +169,6 @@ ul li:hover {
 	background-color: #f3f4f6;
 }
 
-#todo-list li {
-    cursor: grab;
-}
-
 .todo-item.selected {
     background: #e8f0fe;
 }
@@ -655,4 +651,17 @@ label{
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+}
+
+.drag-handle {
+    display: flex;
+    align-items: center;
+    cursor: grab;
+    color: #999;
+    padding: 0 8px;
+    font-size: 14px;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
 }
