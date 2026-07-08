@@ -58,6 +58,15 @@ public class TodoService {
                 .map(this::toResponse)
                 .toList();
     }
+    
+    // 日時が設定されているタスクを取得
+    public List<TodoResponse> findWithDateTime() {
+
+        return todoRepository.findByDateTimeIsNotNullOrderByDisplayOrderAsc()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
     // 保存
     @Transactional
@@ -158,7 +167,7 @@ public class TodoService {
     }
     
     
-    // 全てのタスクの完了、未完了切り替え
+    // リスト内の全タスクの完了、未完了切り替え
     @Transactional
     public void updateAllStatus(Long listId, boolean done) {
     	List<Todo> todos = listId == null
@@ -169,6 +178,20 @@ public class TodoService {
             todo.setDone(done);
         }
     }
+    
+    // 全タスクの完了、未完了切り替え
+    @Transactional
+    public void updateAllStatus(boolean done) {
+
+        List<Todo> todos = todoRepository.findAll();
+
+        for (Todo todo : todos) {
+            todo.setDone(done);
+        }
+
+        todoRepository.saveAll(todos);
+    }
+    
     
     // タスクの通知状態の更新
     public TodoResponse markNotified(Long id) {

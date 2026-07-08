@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,6 +34,12 @@ public class TodoController {
     @GetMapping
     public List<TodoResponse> getTodo() {
         return todoService.findAll();
+    }
+    
+    // 日時が設定されているタスク全件取得
+    @GetMapping("/scheduled")
+    public List<TodoResponse> getScheduledTodos() {
+        return todoService.findWithDateTime();
     }
     
     // タスク一件取得
@@ -63,10 +70,17 @@ public class TodoController {
         todoService.delete(id);
     }
     
-    // タスクの完了未完了の切り替え
+    // 各タスクの完了未完了の切り替え
     @PatchMapping("/{id}/toggle")
     public TodoResponse toggleTodo(@PathVariable Long id) {
         return todoService.toggleStatus(id);
+    }
+    
+    // 全タスクの完了未完了切り替え
+    @PatchMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateAllTodoStatus(@RequestParam boolean done) {
+        todoService.updateAllStatus(done);
     }
     
     // タスクの通知状態の更新

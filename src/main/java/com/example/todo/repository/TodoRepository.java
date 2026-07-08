@@ -12,4 +12,5 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
 	List<Todo> findAllByOrderByIdDesc();
 	List<Todo> findByListIdOrderByDisplayOrderAsc(Long listId);
 	List<Todo> findByListIsNullOrderByDisplayOrderAsc();
+	List<Todo> findByDateTimeIsNotNullOrderByDisplayOrderAsc();
 }

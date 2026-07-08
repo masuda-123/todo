@@ -30,6 +30,7 @@ const detailTodoDateTime = document.getElementById("detail-datetime");
 const detailTodoNotify = document.getElementById("detail-notify");
 
 const allFilter = document.getElementById("all-filter");
+const scheduledFilter = document.getElementById("scheduled-filter");
 const sidebarMylist = document.getElementById("sidebar-mylist");
 const listModal = document.getElementById("list-modal");
 const listNameInput = document.getElementById("list-name-input");
@@ -53,16 +54,21 @@ let todoCache = [];
 let isSaving = false;
 let selectedTodoId = null;
 let todoSortable = null;
-let listSortable
+let listSortable = null;
 let contextTargetListId = null;
 let editingList = null;
 let deletingList = null;
 let hasTasks = false;
 
-const savedListId = localStorage.getItem("currentListId");
-currentListId = savedListId ? Number(savedListId) : null;
-const ALL_LIST_ID = -1;
+let currentFilter = "all";
+let currentListId = null;
 
+const savedListId = localStorage.getItem("currentListId");
+
+if (savedListId) {
+    currentListId = Number(savedListId);
+    currentFilter = null;
+}
 
 // ============================
 // モード管理用変数
@@ -76,42 +82,45 @@ const selectedTaskIds = new Set();
 // タスクの一覧取得
 // ============================
 function fetchTodos() {
-    let url;
-
-    if (currentListId === ALL_LIST_ID) {
-        url = "/todos";
-    } else {
-        url = `/lists/${currentListId}/todos`;
-    }
+    let url
+	if (currentFilter === "scheduled") {
+		url = "/todos/scheduled";
+	} else if (currentFilter === "all") {
+		url = "/todos";
+	} else {
+		url = `/lists/${currentListId}/todos`;
+	}
+			
 
     fetch(url)
         .then(res => res.json())
         .then(data => {
+			console.log(data);
 			todoCache = data;
 			hasTasks = data.length > 0;
 			updateHeader();
 			todoList.innerHTML = "";
 			
 			let todoGroups = {};
-			
-			if (currentListId === ALL_LIST_ID) {
-			    data.forEach(todo => {
-			        const listName = todo.listName;
-			
+			if (currentFilter === "all" || currentFilter === "scheduled") {			
+			    data.forEach(todo => {		
+			        const listName = todo.listName || "未分類";		
 			        if (!todoGroups[listName]) {
 			            todoGroups[listName] = [];
 			        }
-			
 			        todoGroups[listName].push(todo);
 			    });
 			} else {
 			    todoGroups[currentListId] = data;
 			}
-			
-			
+
 			Object.values(todoGroups).forEach(group => {
+				
+				if (group.length === 0) {
+				   return;
+				 }
 			
-			    if (currentListId === ALL_LIST_ID) {
+			    if (currentListId === null) {
 					const header = document.createElement("h3");
 					header.className = "todo-group-title";
 					
@@ -187,7 +196,7 @@ function fetchTodos() {
 					} else {
 						li.appendChild(createCheckbox(todo));
 	                    li.appendChild(text);
-	                        if (currentListId !== ALL_LIST_ID) {
+	                        if (currentListId !== null) {
        			 				li.appendChild(dragHandle);
     					}
 					}
@@ -516,7 +525,7 @@ addTodoBtn?.addEventListener("click", () => {
     fetch(`/todos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, memo, dateTime, notify, listId:　currentListId === ALL_LIST_ID　? null : currentListId})
+        body: JSON.stringify({ title, memo, dateTime, notify, listId: currentListId })
     })
     .then(res => res.json())
     .then(() => {
@@ -561,8 +570,11 @@ function toggleTodo(id) {
 // 全てのタスクのステータス切替
 // ============================
 function updateAllTodoStatus(done) {
-    const url =
-        currentListId === ALL_LIST_ID ? `/todos?done=${done}` : `/lists/${currentListId}/todos?done=${done}`;
+	console.log(currentListId);
+	const url =
+	    currentListId === null
+	    ? `/todos?done=${done}`
+	    : `/lists/${currentListId}/todos?done=${done}`;
 
     fetch(url, {
         method: "PATCH"
@@ -687,8 +699,8 @@ footerCancelBtns.forEach(btn => {
 // ============================
 function initTodoSortable() {
 	
-	if (currentListId === ALL_LIST_ID) {
-    	return;
+	if (currentListId === null) {
+	    return;
 	}
 
     if (bulkMode) {
@@ -735,10 +747,6 @@ function fetchLists() {
         .then(res => res.json())
         .then(data => {
 			updateHeader();
-			
-			if(currentListId === null){
-				currentListId = ALL_LIST_ID;
-			}
 
             sidebarMylist.innerHTML = "";
 
@@ -763,39 +771,28 @@ function fetchLists() {
 				`;
 				
 				sidebarMylist.appendChild(li);
-
-				if (Number(list.id) === currentListId){
-					
-					document.querySelectorAll("#sidebar-mylist li")
-			      		.forEach(item => item.classList.remove("active"));
-			
-			    	document.querySelectorAll("#sidebar-filter li")
-			        	.forEach(item => item.classList.remove("active"));
-				
-				    li.classList.add("active");
-				
-				    document.getElementById("current-list-title").textContent = list.name;
-				
-				    document.getElementById("current-list-title").style.color = list.color;
-				    
-				    fetchTodos();
-				}
                 
-                li.addEventListener("click", () => {
-			    	currentListId = Number(list.id);
-			    	
-			    	localStorage.setItem("currentListId", currentListId);
+			li.addEventListener("click", () => {
+			    currentListId = Number(list.id);
+			    currentFilter = null;
 			
-			    	document.getElementById("current-list-title").textContent = list.name;
-			    	document.getElementById("current-list-title").style.color = list.color;
-			    	document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active"));
-			    	document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
-			    	li.classList.add("active");
-			    	fetchTodos();
-			    });
+			    localStorage.setItem(
+			        "currentListId",
+			        currentListId
+			    );
+			    
+			    document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active")); 
+				document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
+			
+			    li.classList.add("active");
+			
+			    document.getElementById("current-list-title").textContent = list.name;
+			    document.getElementById("current-list-title").style.color = list.color;
+			
+			    fetchTodos();
         	});
         	initListSortable();
-        	if (currentListId === ALL_LIST_ID) {
+        	if (currentListId === null && currentFilter === "all") {
 			
 			    allFilter
 			        .classList.add("active");
@@ -809,26 +806,40 @@ function fetchLists() {
 			    fetchTodos();
 			}
         });
+     });
 }
 
 allFilter.addEventListener("click", () => {
 
-    currentListId = ALL_LIST_ID;
+    currentListId = null;
+    currentFilter = "all";
 
-    localStorage.setItem(
-        "currentListId",
-        currentListId
-    );
+    localStorage.removeItem("currentListId");
 
-    document.querySelectorAll(
-        "#sidebar-mylist li"
-    ).forEach(item =>
-        item.classList.remove("active")
-    );
+    document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active")); 
+	document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
 
     allFilter.classList.add("active");
 
     document.getElementById("current-list-title").textContent = "すべて";
+    document.getElementById("current-list-title").style.color = "";
+    
+    fetchTodos();
+});
+
+scheduledFilter.addEventListener("click", () => {
+
+    currentFilter = "scheduled";
+    currentListId = null;
+
+    localStorage.removeItem("currentListId");
+
+    document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active")); 
+	document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
+
+    scheduledFilter.classList.add("active");
+
+    document.getElementById("current-list-title").textContent = "日時あり";
     document.getElementById("current-list-title").style.color = "";
 
     fetchTodos();
