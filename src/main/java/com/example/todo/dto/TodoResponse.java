@@ -2,8 +2,6 @@ package com.example.todo.dto;
 
 import java.time.LocalDateTime;
 
-import com.example.todo.entity.Todo;
-
 public class TodoResponse {
 
     private Long id;
@@ -15,8 +13,9 @@ public class TodoResponse {
     private boolean notified;
     private String listColor;
     private Long listId;
+    private String listName;
 
-    public TodoResponse(Long id, String title, boolean done, String memo, LocalDateTime dateTime, boolean notify, boolean notified, String listColor, Long listId) {
+    public TodoResponse(Long id, String title, boolean done, String memo, LocalDateTime dateTime, boolean notify, boolean notified, String listColor, Long listId, String listName) {
         this.id = id;
         this.title = title;
         this.done = done;
@@ -26,11 +25,7 @@ public class TodoResponse {
         this.notified = notified;
         this.listColor = listColor;
         this.listId = listId;
-    }
-    
-    public static TodoResponse from(Todo todo){
-    	return new TodoResponse(todo.getId(), todo.getTitle(), todo.isDone(), todo.getMemo(), todo.getDateTime(),todo.isNotify(), todo.isNotified(), todo.getList().getColor(), todo.getList().getId());
-    }
+        this.listName = listName;  }
 
     public Long getId() { return id; }
     public String getTitle() { return title; }
@@ -41,4 +36,5 @@ public class TodoResponse {
     public boolean isNotified() { return notified; }
     public String getListColor() { return listColor; }
     public Long getListId() { return listId; }
+    public String getListName() { return listName; }
 }

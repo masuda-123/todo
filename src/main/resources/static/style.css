@@ -158,7 +158,6 @@ ul {
 
 ul li {
     display: flex;
-    justify-content: space-between;
     list-style: none;
     border-bottom: 1px solid #ccc;
     padding: 10px 5px;
@@ -252,6 +251,31 @@ ul li:hover {
 input[type="checkbox"] {
   transform: scale(1.2);
   cursor: pointer;
+}
+
+.todo-group-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 20px 5px 8px;
+    color: #333;
+}
+
+.todo-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-size: 15px;
+    font-weight: 600;
+    margin: 20px 5px 8px;
+    color: #333;
+}
+
+.todo-group-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .modal {
@@ -420,12 +444,13 @@ label{
 
 .sidebar-header h3, .detail-panel h3 {
     margin-top: 0;
-    font-size: 15px;
+    margin-bottom: 3px;
+    font-size: 12px;
     color: #777;
 }
 
 
-#list-sidebar {
+#sidebar-mylist {
     flex: 1;
     overflow-y: auto;
 
@@ -443,27 +468,49 @@ label{
     font-size: 15px;
     cursor: pointer;
     text-align: center;
-	margin-bottom: 20px;
+    margin-top: 5px;
+	margin-bottom: 15px;
 	border: none;
 	background: #000000;
     color: white;
 }
 
-#list-sidebar li {
+#sidebar-mylist li, #sidebar-list li, #sidebar-filter li {
     padding: 12px 14px;
-    border-radius: 12px;
     cursor: pointer;
-    margin-bottom: 8px;
     transition: 0.2s;
     align-items: center;
+    font-size:14px;
 }
 
-#list-sidebar li:hover {
+#sidebar-mylist li:hover, #sidebar-list li:hover, #sidebar-filter li:hover {
     background: #f2f2f2;
 }
 
+#sidebar-filter li {
+    position: relative;
+    padding: 12px 14px 12px 30px; /* 左に余白を増やす */
+}
 
-#list-sidebar li.active {
+#sidebar-filter li::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: #000000;
+    border-radius: 50%;
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.6;
+}
+
+#sidebar-filter, #sidebar-list {
+	margin-top: 0px;
+}
+
+
+#sidebar-mylist li.active, #sidebar-filter li.active {
     background: #e6e6e6;
 
     font-weight: 600;
@@ -519,6 +566,10 @@ label{
 	color: #777;
 }
 
+#detail-title {
+	font-size: 20px;	
+}
+
 .editable-title,
 .editable-memo,
 .editable-datetime,
@@ -542,7 +593,7 @@ label{
 }
 
 #detail-title input {
-	font-size: 23px;	
+	font-size: 20px;	
 	padding: 8px 10px;
     border-radius: 10px;
     display: block;

@@ -26,6 +26,17 @@ public class TodoService {
     
     // API返却用
     private TodoResponse toResponse(Todo todo) {
+
+        String listColor = null;
+        Long listId = null;
+        String listName = null;
+
+        if (todo.getList() != null) {
+            listColor = todo.getList().getColor();
+            listId = todo.getList().getId();
+            listName = todo.getList().getName();
+        }
+
         return new TodoResponse(
             todo.getId(),
             todo.getTitle(),
@@ -34,29 +45,48 @@ public class TodoService {
             todo.getDateTime(),
             todo.isNotify(),
             todo.isNotified(),
-            todo.getList().getColor(),
-            todo.getList().getId()
-            );
+            listColor,
+            listId,
+            listName
+        );
     }
 
     // 全件取得
     public List<TodoResponse> findAll() {
-        return todoRepository.findAllByOrderByDisplayOrderAsc()
-        	.stream()
-            .map(this::toResponse)
-            .toList();
+        return todoRepository.findAllByOrderByIdDesc()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     // 保存
     @Transactional
     public TodoResponse create(String title, String memo, LocalDateTime dateTime, boolean notify, Long listId) {
-        List<Todo> todos = todoRepository.findAllByOrderByDisplayOrderAsc();
-        TodoList list = todoListRepository.findById(listId).orElseThrow();
+        TodoList list;
 
-        // 既存Todoの順番を1つ後ろにする
+        if (listId == null) {
+            // 「すべて」から追加した場合
+            list = todoListRepository.findByName("タスク")
+                    .orElseGet(() -> {
+                        TodoList newList = new TodoList();
+                        newList.setName("タスク");
+                        newList.setColor("#4f46e5");
+                        return todoListRepository.save(newList);
+                    });
+
+        } else {
+            // 指定リストへ追加
+            list = todoListRepository.findById(listId)
+                    .orElseThrow();
+        }
+
+
+        List<Todo> todos = todoRepository.findByListIdOrderByDisplayOrderAsc(list.getId());
+        
         for (Todo todo : todos) {
             todo.setDisplayOrder(todo.getDisplayOrder() + 1);
         }
+
         
         // 新規Todoを保存
         Todo newTodo = new Todo();
@@ -79,7 +109,7 @@ public class TodoService {
         return todoRepository
                 .findByListIdOrderByDisplayOrderAsc(listId)
                 .stream()
-                .map(TodoResponse::from)
+                .map(this::toResponse)
                 .toList();
     }
     
@@ -131,7 +161,9 @@ public class TodoService {
     // 全てのタスクの完了、未完了切り替え
     @Transactional
     public void updateAllStatus(Long listId, boolean done) {
-        List<Todo> todos = todoRepository.findByListIdOrderByDisplayOrderAsc(listId);
+    	List<Todo> todos = listId == null
+    	        ? todoRepository.findByListIsNullOrderByDisplayOrderAsc()
+    	        : todoRepository.findByListIdOrderByDisplayOrderAsc(listId);
 
         for (Todo todo : todos) {
             todo.setDone(done);

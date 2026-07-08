@@ -14,7 +14,7 @@ const footerDoneBtn = document.getElementById("footer-done");
 const footerNotDoneBtn = document.getElementById("footer-not-done");
 const footerCancelBtns = document.querySelectorAll("#footer-cancel");
 
-const openAddTodoMoalBtn = document.getElementById("open-add-todo-modal-btn");
+const openAddTodoModalBtn = document.getElementById("open-add-todo-modal-btn");
 const addTodoCloseBtn = document.getElementById("add-todo-close-modal-btn");
 const addTodoModal = document.getElementById("add-todo-modal");
 const addTodoInput = document.getElementById("add-todo-input");
@@ -29,7 +29,8 @@ const detailTodoMemo = document.getElementById("detail-memo");
 const detailTodoDateTime = document.getElementById("detail-datetime");
 const detailTodoNotify = document.getElementById("detail-notify");
 
-const sidebar = document.getElementById("list-sidebar");
+const allFilter = document.getElementById("all-filter");
+const sidebarMylist = document.getElementById("sidebar-mylist");
 const listModal = document.getElementById("list-modal");
 const listNameInput = document.getElementById("list-name-input");
 const listColorInput = document.getElementById("list-color-input");
@@ -56,12 +57,11 @@ let listSortable
 let contextTargetListId = null;
 let editingList = null;
 let deletingList = null;
-let hasLists = false;
-let selectedLists = false;
 let hasTasks = false;
 
 const savedListId = localStorage.getItem("currentListId");
 currentListId = savedListId ? Number(savedListId) : null;
+const ALL_LIST_ID = -1;
 
 
 // ============================
@@ -76,74 +76,125 @@ const selectedTaskIds = new Set();
 // タスクの一覧取得
 // ============================
 function fetchTodos() {
-	if (!currentListId) return;
-    fetch(`/lists/${currentListId}/todos`)
+    let url;
+
+    if (currentListId === ALL_LIST_ID) {
+        url = "/todos";
+    } else {
+        url = `/lists/${currentListId}/todos`;
+    }
+
+    fetch(url)
         .then(res => res.json())
         .then(data => {
 			todoCache = data;
 			hasTasks = data.length > 0;
 			updateHeader();
-            todoList.innerHTML = "";
-            data.forEach(todo => {
-				const dragHandle = document.createElement("span");
-				dragHandle.classList.add("drag-handle");
-				dragHandle.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
-                const li = document.createElement("li");
-                li.id = `todo-${todo.id}`;
-                li.classList = "todo-item";
-                li.style.setProperty("--list-color", todo.listColor);
-                li.addEventListener("click", () => {
-    				selectedTodoId = todo.id;
-    				showTodoDetail(todo);
-    				document.querySelectorAll(".todo-item").forEach(item => item.classList.remove("selected"));
-    				li.classList.add("selected");
-    			});
-                const text = document.createElement("div");
-                text.classList.add("text-wrapper");
-                const title = document.createElement("div");
-				title.classList.add("todo-title");
-				title.textContent = todo.title;
-				
-				title.style.textDecoration =
-				    todo.done ? "line-through" : "none";
-				
-				text.appendChild(title);
-				
-				if (todo.id === selectedTodoId) {
-    				li.classList.add("selected");
-				}
-				
-				if (todo.memo) {
-				    const memo = document.createElement("div");
-				    memo.classList.add("todo-memo");
-				    memo.textContent = todo.memo;
-				    memo.style.textDecoration = todo.done ? "line-through" : "none";
-				    text.appendChild(memo);
-				}
-				
-				if (todo.dateTime){
-				    const dateTime = document.createElement("div");
-				    dateTime.classList.add("todo-datetime");
-				    const d = new Date(todo.dateTime);
-				    dateTime.textContent = formatDateTime(d);
-				
-					dateTime.style.textDecoration = todo.done ? "line-through" : "none";
-				    text.appendChild(dateTime);
-				}
-                
-                if (deleteMode){
-					li.appendChild(text);
-                    li.appendChild(createCheckbox(todo));
-				} else if(doneMode) {
-					li.appendChild(text);
-				} else {
-					li.appendChild(createCheckbox(todo));
-                    li.appendChild(text);
-                    li.appendChild(dragHandle);
-				}
-                todoList.appendChild(li);
-            });
+			todoList.innerHTML = "";
+			
+			let todoGroups = {};
+			
+			if (currentListId === ALL_LIST_ID) {
+			    data.forEach(todo => {
+			        const listName = todo.listName;
+			
+			        if (!todoGroups[listName]) {
+			            todoGroups[listName] = [];
+			        }
+			
+			        todoGroups[listName].push(todo);
+			    });
+			} else {
+			    todoGroups[currentListId] = data;
+			}
+			
+			
+			Object.values(todoGroups).forEach(group => {
+			
+			    if (currentListId === ALL_LIST_ID) {
+					const header = document.createElement("h3");
+					header.className = "todo-group-title";
+					
+					const colorDot = document.createElement("span");
+					colorDot.className = "todo-group-color";
+					colorDot.style.backgroundColor = group[0].listColor;
+					
+					const name = document.createElement("span");
+					name.textContent = group[0].listName;
+					
+					header.appendChild(colorDot);
+					header.appendChild(name);
+					
+					todoList.appendChild(header);
+			
+			        todoList.appendChild(header);
+			    }
+			
+			
+			    group.forEach(todo => {
+					const dragHandle = document.createElement("span");
+					dragHandle.classList.add("drag-handle");
+					dragHandle.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
+	                const li = document.createElement("li");
+	                li.id = `todo-${todo.id}`;
+	                li.classList = "todo-item";
+	                li.style.setProperty("--list-color", todo.listColor);
+	                li.addEventListener("click", () => {
+	    				selectedTodoId = todo.id;
+	    				showTodoDetail(todo);
+	    				document.querySelectorAll(".todo-item").forEach(item => item.classList.remove("selected"));
+	    				li.classList.add("selected");
+	    			});
+	                const text = document.createElement("div");
+	                text.classList.add("text-wrapper");
+					
+	                const title = document.createElement("div");
+					title.classList.add("todo-title");
+					title.textContent = todo.title;
+					
+					title.style.textDecoration =
+					    todo.done ? "line-through" : "none";
+					
+					text.appendChild(title);
+					
+					if (todo.id === selectedTodoId) {
+	    				li.classList.add("selected");
+					}
+					
+					if (todo.memo) {
+					    const memo = document.createElement("div");
+					    memo.classList.add("todo-memo");
+					    memo.textContent = todo.memo;
+					    memo.style.textDecoration = todo.done ? "line-through" : "none";
+					    text.appendChild(memo);
+					}
+					
+					if (todo.dateTime){
+					    const dateTime = document.createElement("div");
+					    dateTime.classList.add("todo-datetime");
+					    const d = new Date(todo.dateTime);
+					    dateTime.textContent = formatDateTime(d);
+					
+						dateTime.style.textDecoration = todo.done ? "line-through" : "none";
+					    text.appendChild(dateTime);
+					}
+	                
+	                if (deleteMode){
+						li.appendChild(text);
+	                    li.appendChild(createCheckbox(todo));
+					} else if(doneMode) {
+						li.appendChild(text);
+					} else {
+						li.appendChild(createCheckbox(todo));
+	                    li.appendChild(text);
+	                        if (currentListId !== ALL_LIST_ID) {
+       			 				li.appendChild(dragHandle);
+    					}
+					}
+	                todoList.appendChild(li);
+	            });
             initTodoSortable();
+            });
         })
         .catch(err => console.error(err));
 }
@@ -327,7 +378,6 @@ function startInlineEdit({element, value, field, todo, type = "text"}) {
     	const height = element.getBoundingClientRect().height;
     	element.replaceWith(input);
     	if(height === 40){
-			console.log(height);
 			input.style.height = '120px';
 		} else{
 	    	input.style.height = `${height}px`;
@@ -425,7 +475,7 @@ detailDeleteTodoBtn?.addEventListener("click", () => {
 // ============================
 // タスク作成モーダルを開く
 // ============================
-openAddTodoMoalBtn.addEventListener("click", () => {
+openAddTodoModalBtn.addEventListener("click", () => {
 	addTodoInput.value = "";
     addTodoMemo.value = "";
     addTodoDateTime.value = "";
@@ -466,10 +516,11 @@ addTodoBtn?.addEventListener("click", () => {
     fetch(`/todos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, memo, dateTime, notify, listId: currentListId})
+        body: JSON.stringify({ title, memo, dateTime, notify, listId:　currentListId === ALL_LIST_ID　? null : currentListId})
     })
     .then(res => res.json())
     .then(() => {
+		fetchLists();
         fetchTodos();
         addTodoModal.classList.add("hidden");
     });
@@ -510,8 +561,12 @@ function toggleTodo(id) {
 // 全てのタスクのステータス切替
 // ============================
 function updateAllTodoStatus(done) {
-    fetch(`/lists/${currentListId}/todos?done=${done}`, { method: "PATCH" })
-        .then(() => fetchTodos());
+    const url =
+        currentListId === ALL_LIST_ID ? `/todos?done=${done}` : `/lists/${currentListId}/todos?done=${done}`;
+
+    fetch(url, {
+        method: "PATCH"
+    }).then(() => fetchTodos());
 }
 
 // ============================
@@ -552,29 +607,17 @@ document.getElementById("bulk-done")?.addEventListener("click", () => {
 // ヘッダーの更新
 // ============================
 function updateHeader() {
-    if (selectedLists) {
-		emptyMessage.classList.add("hidden");
 		if(bulkMode){
 			menuBtn.style.display = "none";
-			openAddTodoMoalBtn.classList.add("hidden");
-		}else if(hasTasks){
-			menuBtn.style.display = "block";
-			openAddTodoMoalBtn.classList.remove("hidden");
+			openAddTodoModalBtn.classList.add("hidden");
 		} else {
-	        menuBtn.style.display = "none";
-	        openAddTodoMoalBtn.classList.remove("hidden");
-	    }
-    } else {
-		detailDeleteTodoBtn.classList.add("hidden");
-		openAddTodoMoalBtn.classList.add("hidden");
-        menuBtn.style.display = "none";
-        emptyMessage.classList.remove("hidden");
-        if(hasLists){
-        	emptyMessage.textContent = "リストを選択してください";
-        } else {
-        	emptyMessage.textContent = "リストを作成してください";
-       	}
-	}
+			if(hasTasks){	
+				menuBtn.style.display = "block";
+			} else {
+				menuBtn.style.display = "none";
+			}
+			openAddTodoModalBtn.classList.remove("hidden");
+		}
 }
 
 // ============================
@@ -609,7 +652,7 @@ footerDoneBtn?.addEventListener("click", () => {
 	updateAllTodoStatus(true);
     bulkMode = false;
     doneMode = false;
-    openAddTodoMoalBtn.classList.remove("hidden");
+    openAddTodoModalBtn.classList.remove("hidden");
     fetchTodos();
     updateHeader();
     updateFooter();
@@ -619,7 +662,7 @@ footerNotDoneBtn?.addEventListener("click", () => {
 	updateAllTodoStatus(false);
     bulkMode = false;
     doneMode = false;
-    openAddTodoMoalBtn.classList.remove("hidden");
+    openAddTodoModalBtn.classList.remove("hidden");
     fetchTodos();
     updateFooter();
 });
@@ -633,7 +676,7 @@ footerCancelBtns.forEach(btn => {
         }else{
 			doneMode = false;
 		}
-        openAddTodoMoalBtn.classList.remove("hidden");
+        openAddTodoModalBtn.classList.remove("hidden");
         fetchTodos();
         updateFooter();
     });
@@ -643,6 +686,10 @@ footerCancelBtns.forEach(btn => {
 // タスクの並び替え
 // ============================
 function initTodoSortable() {
+	
+	if (currentListId === ALL_LIST_ID) {
+    	return;
+	}
 
     if (bulkMode) {
 
@@ -687,12 +734,13 @@ function fetchLists() {
     fetch("/lists")
         .then(res => res.json())
         .then(data => {
-			hasLists = data.length > 0;
 			updateHeader();
 			
-			selectedLists = (currentListId != null);
+			if(currentListId === null){
+				currentListId = ALL_LIST_ID;
+			}
 
-            sidebar.innerHTML = "";
+            sidebarMylist.innerHTML = "";
 
             data.forEach(list => {
 				const li = document.createElement("li");
@@ -714,9 +762,15 @@ function fetchLists() {
 				    ${list.name}
 				`;
 				
-				sidebar.appendChild(li);
+				sidebarMylist.appendChild(li);
 
 				if (Number(list.id) === currentListId){
+					
+					document.querySelectorAll("#sidebar-mylist li")
+			      		.forEach(item => item.classList.remove("active"));
+			
+			    	document.querySelectorAll("#sidebar-filter li")
+			        	.forEach(item => item.classList.remove("active"));
 				
 				    li.classList.add("active");
 				
@@ -728,22 +782,57 @@ function fetchLists() {
 				}
                 
                 li.addEventListener("click", () => {
-					hasLists = true;
-			    	selectedLists = true;
 			    	currentListId = Number(list.id);
 			    	
 			    	localStorage.setItem("currentListId", currentListId);
 			
 			    	document.getElementById("current-list-title").textContent = list.name;
 			    	document.getElementById("current-list-title").style.color = list.color;
-			    	document.querySelectorAll("#list-sidebar li").forEach(item => item.classList.remove("active"));
+			    	document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active"));
+			    	document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
 			    	li.classList.add("active");
 			    	fetchTodos();
 			    });
         	});
         	initListSortable();
+        	if (currentListId === ALL_LIST_ID) {
+			
+			    allFilter
+			        .classList.add("active");
+			
+			    document.getElementById("current-list-title")
+			        .textContent = "すべて";
+			
+			    document.getElementById("current-list-title")
+			        .style.color = "";
+			
+			    fetchTodos();
+			}
         });
 }
+
+allFilter.addEventListener("click", () => {
+
+    currentListId = ALL_LIST_ID;
+
+    localStorage.setItem(
+        "currentListId",
+        currentListId
+    );
+
+    document.querySelectorAll(
+        "#sidebar-mylist li"
+    ).forEach(item =>
+        item.classList.remove("active")
+    );
+
+    allFilter.classList.add("active");
+
+    document.getElementById("current-list-title").textContent = "すべて";
+    document.getElementById("current-list-title").style.color = "";
+
+    fetchTodos();
+});
 
 // ============================
 // リスト作成モーダルを開く
@@ -874,7 +963,6 @@ deleteListMenuBtn.addEventListener("click", async () => {
 	    currentListId = null;
 	
 	    localStorage.removeItem("currentListId");
-	    selectedLists = false;
 	
 	    todoList.innerHTML = "";
 	
@@ -924,12 +1012,12 @@ function initListSortable() {
         listSortable.destroy();
     }
 
-    listSortable = new Sortable(sidebar, {
+    listSortable = new Sortable(sidebarMylist, {
         animation: 150,
 
         onEnd: () => {
 
-            const orderedIds = [...sidebar.children].map(li =>
+            const orderedIds = [...sidebarMylist.children].map(li =>
                 Number(li.id.replace("list-", ""))
             );
 

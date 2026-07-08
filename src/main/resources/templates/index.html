@@ -10,13 +10,28 @@
 	<body>
 		<div class="app-layout">
 	        <aside class="sidebar">
-	            <div class="sidebar-header">
+				<div class="sidebar-header filter">
+	                <h3>フィルター</h3>
+	            </div>
+	            <ul id="sidebar-filter">
+					<li id="all-filter">すべて</li>
+					<li>日時あり</li>
+					<li>カテゴリ別</li>
+				</ul>
+	            <div class="sidebar-header list">
 	                <h3>リスト</h3>
+	            </div>
+	           	<ul id="sidebar-list">
+					<li><i class="fa-solid fa-list list-icon" style="color:#4f46e5;"></i>今日</li>
+					<li><i class="fa-solid fa-list list-icon" style="color:#4f46e5;"></i>明日</li>
+	            </ul>
+	            <div class="sidebar-header mylist">
+	                <h3>マイリスト</h3>
 	            </div>
 	           	<button class="open-modal-btn" id="open-add-list-modal-btn">
 	                ＋ 新規リスト
 	            </button>
-	            <ul id="list-sidebar">
+	            <ul id="sidebar-mylist">
 	            </ul>
 	        </aside>
 	        <main class="main-content">
@@ -36,12 +51,9 @@
 					        </div>
 					    </div>
 					    <h2 id="current-list-title">
-					        Todo タスク
+					        すべて
 					    </h2>
 					    <button id="open-add-todo-modal-btn"><i class="fa-solid fa-plus"></i></button>
-					</div>
-					<div id="empty-message" class="hidden">
-						リストを作成してください
 					</div>
 					<ul id="todo-list"></ul>
 					<div id="selection-footer-delete-mode" class="selection-footer-delete-mode hidden">
