@@ -31,6 +31,8 @@ const detailTodoNotify = document.getElementById("detail-notify");
 
 const allFilter = document.getElementById("all-filter");
 const scheduledFilter = document.getElementById("scheduled-filter");
+const todayFilter = document.getElementById("today-filter");
+const tomorrowFilter = document.getElementById("tomorrow-filter");
 const sidebarMylist = document.getElementById("sidebar-mylist");
 const listModal = document.getElementById("list-modal");
 const listNameInput = document.getElementById("list-name-input");
@@ -82,29 +84,36 @@ const selectedTaskIds = new Set();
 // タスクの一覧取得
 // ============================
 function fetchTodos() {
-    let url
-	if (currentFilter === "scheduled") {
-		url = "/todos/scheduled";
+    let url;
+    if (currentFilter === "today") {
+	    url = "/todos/today";
+	} else if (currentFilter === "tomorrow") {
+	    url = "/todos/tomorrow";
+	} else if (currentFilter === "scheduled") {
+	    url = "/todos/scheduled";
 	} else if (currentFilter === "all") {
-		url = "/todos";
+	    url = "/todos";
 	} else {
-		url = `/lists/${currentListId}/todos`;
-	}
-			
+	    url = `/lists/${currentListId}/todos`;
+	}		
 
     fetch(url)
         .then(res => res.json())
         .then(data => {
-			console.log(data);
 			todoCache = data;
 			hasTasks = data.length > 0;
 			updateHeader();
 			todoList.innerHTML = "";
 			
 			let todoGroups = {};
-			if (currentFilter === "all" || currentFilter === "scheduled") {			
+			if (
+			    currentFilter === "all" ||
+			    currentFilter === "scheduled" ||
+			    currentFilter === "today" ||
+			    currentFilter === "tomorrow"
+			) {		
 			    data.forEach(todo => {		
-			        const listName = todo.listName || "未分類";		
+			        const listName = todo.listName;		
 			        if (!todoGroups[listName]) {
 			            todoGroups[listName] = [];
 			        }
@@ -133,14 +142,12 @@ function fetchTodos() {
 					
 					header.appendChild(colorDot);
 					header.appendChild(name);
-					
 					todoList.appendChild(header);
-			
-			        todoList.appendChild(header);
 			    }
 			
 			
 			    group.forEach(todo => {
+					console.log(todo.notify);
 					const dragHandle = document.createElement("span");
 					dragHandle.classList.add("drag-handle");
 					dragHandle.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
@@ -520,16 +527,27 @@ addTodoBtn?.addEventListener("click", () => {
     const memo = addTodoMemo.value.trim();
     const dateTime = addTodoDateTime.value.trim();
     const notify = addTodoNotify.checked;
+
     if (!title) return;
 
-    fetch(`/todos`, {
+    fetch("/todos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, memo, dateTime, notify, listId: currentListId })
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title,
+            memo,
+            dateTime: dateTime || null,
+            notify,
+            listId: currentListId,
+            todayAdd: currentFilter === "today" || currentFilter === "scheduled",
+            tomorrowAdd: currentFilter === "tomorrow"
+        })
     })
     .then(res => res.json())
     .then(() => {
-		fetchLists();
+        fetchLists();
         fetchTodos();
         addTodoModal.classList.add("hidden");
     });
@@ -792,7 +810,7 @@ function fetchLists() {
 			    fetchTodos();
         	});
         	initListSortable();
-        	if (currentListId === null && currentFilter === "all") {
+        	if (currentListId === null && currentFilter === null) {
 			
 			    allFilter
 			        .classList.add("active");
@@ -811,10 +829,11 @@ function fetchLists() {
 
 allFilter.addEventListener("click", () => {
 
+	currentFilter = "all";
     currentListId = null;
-    currentFilter = "all";
 
     localStorage.removeItem("currentListId");
+	localStorage.setItem("currentFilter", "all");
 
     document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active")); 
 	document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
@@ -833,6 +852,7 @@ scheduledFilter.addEventListener("click", () => {
     currentListId = null;
 
     localStorage.removeItem("currentListId");
+	localStorage.setItem("currentFilter", "scheduled");
 
     document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active")); 
 	document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
@@ -840,6 +860,44 @@ scheduledFilter.addEventListener("click", () => {
     scheduledFilter.classList.add("active");
 
     document.getElementById("current-list-title").textContent = "日時あり";
+    document.getElementById("current-list-title").style.color = "";
+
+    fetchTodos();
+});
+
+todayFilter.addEventListener("click", () => {
+
+    currentFilter = "today";
+    currentListId = null;
+
+    localStorage.removeItem("currentListId");
+    localStorage.setItem("currentFilter", "today");
+
+    document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active")); 
+	document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
+
+    todayFilter.classList.add("active");
+
+    document.getElementById("current-list-title").textContent = "今日";
+    document.getElementById("current-list-title").style.color = "";
+
+    fetchTodos();
+});
+
+tomorrowFilter.addEventListener("click", () => {
+
+    currentFilter = "tomorrow";
+    currentListId = null;
+
+    localStorage.removeItem("currentListId");
+    localStorage.setItem("currentFilter", "tomorrow");
+
+    document.querySelectorAll("#sidebar-mylist li").forEach(item => item.classList.remove("active")); 
+	document.querySelectorAll("#sidebar-filter li").forEach(item => item.classList.remove("active"));
+
+    tomorrowFilter.classList.add("active");
+
+    document.getElementById("current-list-title").textContent = "明日";
     document.getElementById("current-list-title").style.color = "";
 
     fetchTodos();
@@ -1053,17 +1111,18 @@ async function checkNotifications() {
     const todos = await res.json();
     const now = new Date();
 
-    todos.forEach(todo => {
-        if (!todo.dateTime) return;
-        if (todo.done) return;
-        if (todo.notified === true) return;
-
-        const due = new Date(todo.dateTime);
-
-        if (due <= now) {
-            showNotification(todo);
-        }
-    });
+	todos.forEach(todo => {
+	    if (!todo.dateTime) return;
+	    if (!todo.notify) return;
+	    if (todo.done) return;
+	    if (todo.notified) return;
+	
+	    const due = new Date(todo.dateTime);
+	
+	    if (due <= now) {
+	        showNotification(todo);
+	    }
+	});
 }
 
 function showNotification(todo) {

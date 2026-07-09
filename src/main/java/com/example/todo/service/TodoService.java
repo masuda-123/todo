@@ -1,5 +1,6 @@
 package com.example.todo.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -67,14 +68,41 @@ public class TodoService {
                 .map(this::toResponse)
                 .toList();
     }
+    
+    // 今日が設定されているタスクを取得
+    public List<TodoResponse> findToday() {
+        LocalDate today = LocalDate.now();
+
+        return todoRepository
+                .findByDateTimeGreaterThanEqualAndDateTimeLessThanOrderByDisplayOrderAsc(
+                        today.atStartOfDay(),
+                        today.plusDays(1).atStartOfDay()
+                )
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+    
+    // 明日が設定されているタスクを取得
+    public List<TodoResponse> findTomorrow() {
+        LocalDate today = LocalDate.now();
+
+        return todoRepository
+                .findByDateTimeGreaterThanEqualAndDateTimeLessThanOrderByDisplayOrderAsc(
+                        today.plusDays(1).atStartOfDay(),
+                        today.plusDays(2).atStartOfDay()
+                )
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
     // 保存
     @Transactional
-    public TodoResponse create(String title, String memo, LocalDateTime dateTime, boolean notify, Long listId) {
+    public TodoResponse create(String title, String memo, LocalDateTime dateTime, boolean notify, Long listId, boolean todayAdd, boolean tomorrowAdd) {
         TodoList list;
 
         if (listId == null) {
-            // 「すべて」から追加した場合
             list = todoListRepository.findByName("タスク")
                     .orElseGet(() -> {
                         TodoList newList = new TodoList();
@@ -82,13 +110,19 @@ public class TodoService {
                         newList.setColor("#4f46e5");
                         return todoListRepository.save(newList);
                     });
-
         } else {
-            // 指定リストへ追加
             list = todoListRepository.findById(listId)
                     .orElseThrow();
         }
 
+
+        if (todayAdd) {
+            dateTime = LocalDate.now().atStartOfDay();
+            notify = false;
+        } else if (tomorrowAdd) {
+            dateTime = LocalDate.now().plusDays(1).atStartOfDay();
+            notify = false;
+        }
 
         List<Todo> todos = todoRepository.findByListIdOrderByDisplayOrderAsc(list.getId());
         

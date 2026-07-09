@@ -19,6 +19,10 @@ public class TodoRequest {
     
     private Long listId;
     
+    private boolean todayAdd;
+    
+    private boolean tomorrowAdd;
+    
     // テスト用のコンストラクタ
     public TodoRequest(String title) {
         this.title = title;
@@ -62,5 +66,21 @@ public class TodoRequest {
 
     public void setListId(Long listId) {
         this.listId = listId;
+    }
+    
+    public boolean isTodayAdd() {
+        return todayAdd;
+    }
+
+    public void setTodayAdd(boolean todayAdd) {
+        this.todayAdd = todayAdd;
+    }
+    
+    public boolean isTomorrowAdd() {
+        return tomorrowAdd;
+    }
+
+    public void setTomorrowAdd(boolean tomorrowAdd) {
+        this.tomorrowAdd = tomorrowAdd;
     }
 }

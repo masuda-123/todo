@@ -42,6 +42,18 @@ public class TodoController {
         return todoService.findWithDateTime();
     }
     
+    // 今日が設定されているタスク全件取得
+    @GetMapping("/today")
+    public List<TodoResponse> getTodayTodos() {
+        return todoService.findToday();
+    }
+    
+    // 明日が設定されているタスク全件取得
+    @GetMapping("/tomorrow")
+    public List<TodoResponse> getTomorrowTodos() {
+        return todoService.findTomorrow();
+    }
+    
     // タスク一件取得
     @GetMapping("/{id}")
     public TodoResponse getTodo(@PathVariable Long id) {
@@ -51,7 +63,7 @@ public class TodoController {
     // タスク保存
     @PostMapping
     public TodoResponse createTodo(@Valid @RequestBody TodoRequest request) { 
-        return todoService.create(request.getTitle(), request.getMemo(), request.getDateTime(), request.isNotify(), request.getListId());
+        return todoService.create(request.getTitle(), request.getMemo(), request.getDateTime(), request.isNotify(), request.getListId(), request.isTodayAdd(), request.isTomorrowAdd());
     }
     
     // タスク名、メモ、日時更新
